@@ -34,10 +34,15 @@ class ChequeDepositRepository implements BaseRepository<ChequeDeposit> {
     _chequeDeposits.removeWhere((deposit) => deposit.id == id);
   }
 
-  // Additional method to retrieve all deposits by status
+  // Retrieve all deposits by status
   List<ChequeDeposit> getByStatus(String status) {
     return _chequeDeposits
         .where((deposit) => deposit.status == status)
         .toList();
+  }
+
+  // Load initial data from JSON if needed
+  Future<void> loadInitialData(List<ChequeDeposit> deposits) async {
+    _chequeDeposits.addAll(deposits);
   }
 }
