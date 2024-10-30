@@ -12,9 +12,40 @@ class _CustomersScreenState extends State<CustomersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Customers"),
+        title: const Text("Customers"),
       ),
       body: Column(children: [
+        
+            Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton(
+                    onPressed: () => print("Go to add screen"),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: const Text(
+                      "Add Customer",
+                      style: TextStyle(color: Colors.white)
+                      ),
+                  ),
+                ),
+                Expanded(
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search Customers...",
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                        borderSide: BorderSide.none
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[200]
+                    ),
+                  ),
+                ),
+              ],
+            )
+        ,
         CustomerCard(
           companyName: 'Amana Qatar Contracting',
           street: '55 Al-Salam St',
@@ -26,10 +57,9 @@ class _CustomersScreenState extends State<CustomersScreen> {
           mobile: '7780-7800',
           onDelete: () {
             // Handle delete action
-            print('Delete');
           },
           onUpdate: () {
-            print('update');
+            // update
           },
         ),
       ]),
@@ -54,7 +84,7 @@ class CustomerCard extends StatelessWidget {
   final VoidCallback onUpdate;
 
 const CustomerCard({
-    Key? key,
+    super.key,
     required this.companyName,
     required this.street,
     required this.city,
@@ -65,7 +95,7 @@ const CustomerCard({
     required this.mobile,
     required this.onDelete,
     required this.onUpdate
-  }) : super(key: key);
+  });
 
 
 
@@ -85,20 +115,35 @@ const CustomerCard({
                   companyName,
                   style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Text("Address: $street, $city, $country"),
-                SizedBox(height: 8.0),
+                const SizedBox(height: 8.0),
                 Text("Contact: $firstName $lastName"),
                 Text("Email: $email"),
                 Text("Mobile: $mobile"),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: onDelete,
-                    color: Colors.red,
-                  ),
+                const SizedBox(height: 20.0,),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ElevatedButton(
+                        onPressed: () => onUpdate, // navigate to update screen
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 207, 252, 72)),
+                        child: const Text(
+                          "Update Customer",
+                          style: TextStyle(color: Color.fromARGB(255, 0, 0, 0))
+                          ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => onDelete, // navigate to update screen
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 170, 11, 0)),
+                        child: const Text(
+                          "Delete Customer",
+                          style: TextStyle(color: Color.fromARGB(255, 255, 255, 255))
+                          ),
+                      ),
+                  ],
                 ),
+                
               ],
             ),
           ),
