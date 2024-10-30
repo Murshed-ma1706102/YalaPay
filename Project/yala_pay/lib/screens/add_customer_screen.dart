@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AddCustomerScreen extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+  
 
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController streetController = TextEditingController();
@@ -12,6 +12,8 @@ class AddCustomerScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
 
+  AddCustomerScreen({Key? key}) : super(key: key);
+
  
 
   @override
@@ -20,7 +22,6 @@ class AddCustomerScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
           child: ListView(
             children: [
               const Text(

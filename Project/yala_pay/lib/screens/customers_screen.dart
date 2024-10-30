@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:yala_pay/providers/customer_provider.dart';
 import '../models/customer.dart';
@@ -59,7 +60,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  onPressed: () => {}, // Navigate to add screen
+                  onPressed: () => {context.go('/customer/addCustomer')}, // Navigate to add screen
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: const Text(
                     "Add Customer",
