@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yala_pay/providers/cheque_provider.dart';
+import 'package:yala_pay/providers/customer_provider.dart';
+import 'package:yala_pay/providers/invoice_provider.dart';
 import 'routes/app_router.dart'; // Import the app router
 import 'providers/user_provider.dart';
 
@@ -8,8 +11,11 @@ void main() {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => InvoiceProvider()),
+        ChangeNotifierProvider(create: (_) => ChequeProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }

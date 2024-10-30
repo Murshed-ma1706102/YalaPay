@@ -1,7 +1,12 @@
 import 'package:go_router/go_router.dart';
+import 'package:yala_pay/models/user.dart';
 
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
+import '../screens/payments_screen.dart';
+import '../screens/cheques_screen.dart';
+import '../screens/invoices_screen.dart';
+import '../widgets/bottom_navigation_shell.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -10,12 +15,38 @@ class AppRouter {
       GoRoute(
         path: '/',
         name: 'login',
-        builder: (context, state) => LoginScreen(),
+        builder: (context, state) => const LoginScreen(),
       ),
-      GoRoute(
-        path: '/dashboard',
-        name: 'dashboard',
-        builder: (context, state) => DashboardScreen(),
+      ShellRoute(
+        builder: (context, state, child) {
+          return BottomNavigationShell(
+              child: child); // Persistent navigation shell
+        },
+        routes: [
+          GoRoute(
+            path: '/dashboard',
+            name: 'dashboard',
+            builder: (context, state) {
+              final user = state.extra as User;
+              return DashboardScreen(user: user);
+            },
+          ),
+          GoRoute(
+            path: '/payments',
+            name: 'payments',
+            builder: (context, state) => const PaymentsScreen(),
+          ),
+          GoRoute(
+            path: '/cheques',
+            name: 'cheques',
+            builder: (context, state) => const ChequesScreen(),
+          ),
+          GoRoute(
+            path: '/invoices',
+            name: 'invoices',
+            builder: (context, state) => const InvoicesScreen(),
+          ),
+        ],
       ),
     ],
   );

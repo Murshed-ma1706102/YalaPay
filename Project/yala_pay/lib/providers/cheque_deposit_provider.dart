@@ -6,24 +6,47 @@ class ChequeDepositProvider with ChangeNotifier {
   final ChequeDepositRepository _chequeDepositRepository =
       ChequeDepositRepository();
 
-  List<ChequeDeposit> get chequeDeposits => _chequeDepositRepository.getAll();
+  bool _isLoading = false;
+
+  List<ChequeDeposit> _chequeDeposits = [];
+  List<ChequeDeposit> get chequeDeposits => _chequeDeposits;
+
+  bool get isLoading => _isLoading;
+
+  Future<void> loadInitialData(List<ChequeDeposit> deposits) async {
+    _isLoading = true;
+    notifyListeners();
+
+    _chequeDeposits = deposits;
+    _chequeDepositRepository.loadInitialData(deposits);
+
+    _isLoading = false;
+    notifyListeners();
+  }
 
   ChequeDeposit? getChequeDepositById(String id) {
     return _chequeDepositRepository.getById(id);
   }
 
-  void addChequeDeposit(ChequeDeposit deposit) {
+  Future<void> addChequeDeposit(ChequeDeposit deposit) async {
     _chequeDepositRepository.add(deposit);
+    _chequeDeposits.add(deposit);
     notifyListeners();
   }
 
-  void updateChequeDeposit(String id, ChequeDeposit updatedDeposit) {
+  Future<void> updateChequeDeposit(
+      String id, ChequeDeposit updatedDeposit) async {
     _chequeDepositRepository.update(id, updatedDeposit);
-    notifyListeners();
+    final index = _chequeDeposits.indexWhere((d) => d.id == id);
+    if (index != -1) {
+      _chequeDeposits[index] = updatedDeposit;
+      notifyListeners();
+    }
   }
 
-  void deleteChequeDeposit(String id) {
+  Future<void> deleteChequeDeposit(String id) async {
     _chequeDepositRepository.delete(id);
+    _chequeDeposits.removeWhere((deposit) => deposit.id == id);
     notifyListeners();
   }
 

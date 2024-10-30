@@ -3,31 +3,41 @@ class Invoice {
   final String customerId;
   final String customerName;
   final double amount;
-  final String invoiceDate;
-  final String dueDate;
+  final DateTime invoiceDate;
+  final DateTime dueDate;
+  String status; // Make status mutable
 
-  Invoice(
-      {required this.id,
-      required this.customerId,
-      required this.customerName,
-      required this.amount,
-      required this.invoiceDate,
-      required this.dueDate});
+  Invoice({
+    required this.id,
+    required this.customerId,
+    required this.customerName,
+    required this.amount,
+    required this.invoiceDate,
+    required this.dueDate,
+    this.status = "Unpaid", // Default status
+  });
 
-  factory Invoice.fromJson(Map<String, dynamic> json) => Invoice(
+  factory Invoice.fromJson(Map<String, dynamic> json) {
+    return Invoice(
       id: json['id'],
       customerId: json['customerId'],
       customerName: json['customerName'],
-      amount: json['amount'],
-      invoiceDate: json['invoiceDate'],
-      dueDate: json['dueDate']);
+      amount: (json['amount'] as num).toDouble(),
+      invoiceDate: DateTime.parse(json['invoiceDate']),
+      dueDate: DateTime.parse(json['dueDate']),
+      status: json['status'] ?? "Unpaid", // Default to "Unpaid" if not provided
+    );
+  }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'customerId': customerId,
-        'customerName': customerName,
-        'amount': amount,
-        'invoiceDate': invoiceDate,
-        'dueDate': dueDate,
-      };
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'customerId': customerId,
+      'customerName': customerName,
+      'amount': amount,
+      'invoiceDate': invoiceDate.toIso8601String(),
+      'dueDate': dueDate.toIso8601String(),
+      'status': status,
+    };
+  }
 }

@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
 import '../models/customer.dart';
 import 'base_repository.dart';
 
@@ -30,5 +34,20 @@ class CustomerRepository implements BaseRepository<Customer> {
   @override
   void delete(String id) {
     _customers.removeWhere((customer) => customer.id == id);
+  }
+
+  Future<void> fetchAllAsync() async {
+    try {
+      // Load JSON data from the assets
+      final String response =
+          await rootBundle.loadString('assets/YalaPay-dat/customers.json');
+      final List<dynamic> data = json.decode(response);
+
+      // Parse JSON data and populate the _customers list
+      _customers.clear();
+      _customers.addAll(data.map((json) => Customer.fromJson(json)).toList());
+    } catch (e) {
+      print("Error fetching customers: $e");
+    }
   }
 }

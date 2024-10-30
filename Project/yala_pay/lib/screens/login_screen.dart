@@ -28,7 +28,11 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _errorMessage = null;
         });
-        context.go('/dashboard');
+        // Navigate to the dashboard with user info
+        context.go(
+          '/dashboard',
+          extra: user, // Pass the user object as extra
+        );
       } else {
         setState(() {
           _errorMessage = 'Invalid email or password';
@@ -58,7 +62,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                //const Text('Login Screen U1', style: TextStyle(fontSize: 24)),
                 const SizedBox(height: 16),
                 const Text('YalaPay',
                     style:
