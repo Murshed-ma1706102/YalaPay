@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yala_pay/providers/customer_provider.dart';
+import '../models/customer.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -10,73 +11,115 @@ class CustomersScreen extends StatefulWidget {
 }
 
 class _CustomersScreenState extends State<CustomersScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Customer> _filteredCustomers = []; // List to hold filtered customers
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_filterCustomers);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterCustomers);
+    _searchController.dispose();
+    super.dispose();
+  } // to clean up after the widget is removed from the widget tree
+
+  void _filterCustomers() {
+    final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
+    final query = _searchController.text.toLowerCase();
+
+    setState(() {
+      _filteredCustomers = customerProvider.customers.where((customer) {
+        final name = customer.companyName.toLowerCase();
+        return name.contains(query);
+      }).toList();
+
+      _filteredCustomers = customerProvider.customers.where((customer) {
+        final name = customer.companyName.toLowerCase();
+        return name.contains(query);
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final customerProvider = Provider.of<CustomerProvider>(context);
     
-    print("Customers!");
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Customers"),
       ),
-      body: Column(children: [
-        Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                onPressed: () => {}, //navigate to add screen
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                child: const Text("Add Customer",
-                    style: TextStyle(color: Colors.white)),
+      body: Column(
+        children: [
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ElevatedButton(
+                  onPressed: () => {}, // Navigate to add screen
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Text(
+                    "Add Customer",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ),
-            ),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
+              Expanded(
+                child: TextField(
+                  controller: _searchController, 
+                  decoration: InputDecoration(
                     hintText: "Search Customers...",
                     prefixIcon: const Icon(Icons.search),
                     border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide.none),
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
-                    fillColor: Colors.grey[200]),
-              ),
-            ),
-          ],
-        ),
-        Expanded(
-          // **Wrap Customer List in Expanded**
-          child: customerProvider.isLoading // **Display loading indicator**
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-                  itemCount: customerProvider.customers.length,
-                  itemBuilder: (context, index) {
-                    final customer = customerProvider.customers[index];
-                    return CustomerCard(
-                      companyName: customer.companyName,
-                      street: customer.address.street,
-                      city: customer.address.city,
-                      country: customer.address.country,
-                      firstName: customer.contactDetails.firstName,
-                      lastName: customer.contactDetails.lastName,
-                      email: customer.contactDetails.email,
-                      mobile: customer.contactDetails.mobile,
-                      onDelete: () {
-                        customerProvider.deleteCustomer(customer.id);
-                      },
-                      onUpdate: () {
-                        print("updated!");
-                      },
-                    );
-                  },
+                    fillColor: Colors.grey[200],
+                  ),
                 ),
-        ),
-      ]),
+              ),
+            ],
+          ),
+          Expanded(
+            child: customerProvider.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: _searchController.text.isEmpty
+                        ? customerProvider.customers.length
+                        : _filteredCustomers.length, // Show filtered or all customers
+                    itemBuilder: (context, index) {
+                      final customer = _searchController.text.isEmpty
+                          ? customerProvider.customers[index]
+                          : _filteredCustomers[index];
+                      return CustomerCard(
+                        companyName: customer.companyName,
+                        street: customer.address.street,
+                        city: customer.address.city,
+                        country: customer.address.country,
+                        firstName: customer.contactDetails.firstName,
+                        lastName: customer.contactDetails.lastName,
+                        email: customer.contactDetails.email,
+                        mobile: customer.contactDetails.mobile,
+                        onDelete: () {
+                          customerProvider.deleteCustomer(customer.id);
+                        },
+                        onUpdate: () {
+                          print("updated!");
+                        },
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
+
       
 
 
