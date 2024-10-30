@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../providers/user_provider.dart';
 import 'package:go_router/go_router.dart';
@@ -15,8 +16,15 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   String? _errorMessage;
+
+  // Save user data on successful login
+  Future<void> _saveUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('userEmail', user.email);
+    await prefs.setString('userFirstName', user.firstName);
+    await prefs.setString('userLastName', user.lastName);
+  }
 
   void _login() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -28,10 +36,10 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _errorMessage = null;
         });
-        // Navigate to the dashboard with user info
+        _saveUser(user); // Save user information
         context.go(
           '/dashboard',
-          extra: user, // Pass the user object as extra
+          extra: user, // Pass user object to dashboard
         );
       } else {
         setState(() {

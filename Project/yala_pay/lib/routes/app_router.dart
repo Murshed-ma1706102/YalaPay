@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:yala_pay/models/user.dart';
 
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
@@ -27,8 +26,7 @@ class AppRouter {
             path: '/dashboard',
             name: 'dashboard',
             builder: (context, state) {
-              final user = state.extra as User;
-              return DashboardScreen(user: user);
+              return const DashboardScreen();
             },
           ),
           GoRoute(
