@@ -16,5 +16,11 @@
     "password": "pass123",
     "firstName": "Samir",
     "lastName": "Saghir"
+  },
+  {
+    "email": "e@e.com",
+    "password": "pass",
+    "firstName": "Samir",
+    "lastName": "Saghir"
   }
 ]

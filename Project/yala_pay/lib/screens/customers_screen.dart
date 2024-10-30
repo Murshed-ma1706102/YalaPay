@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:yala_pay/providers/customer_provider.dart';
 
 class CustomersScreen extends StatefulWidget {
   const CustomersScreen({super.key});
@@ -10,57 +12,66 @@ class CustomersScreen extends StatefulWidget {
 class _CustomersScreenState extends State<CustomersScreen> {
   @override
   Widget build(BuildContext context) {
+    final customerProvider = Provider.of<CustomerProvider>(context);
+    
+    print("Customers!");
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Customers"),
       ),
       body: Column(children: [
-        
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ElevatedButton(
-                    onPressed: () => print("Go to add screen"),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    child: const Text(
-                      "Add Customer",
-                      style: TextStyle(color: Colors.white)
-                      ),
-                  ),
-                ),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search Customers...",
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
+        Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () => {}, //navigate to add screen
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                child: const Text("Add Customer",
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ),
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                    hintText: "Search Customers...",
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide.none
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200]
-                    ),
-                  ),
+                        borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.grey[200]),
+              ),
+            ),
+          ],
+        ),
+        Expanded(
+          // **Wrap Customer List in Expanded**
+          child: customerProvider.isLoading // **Display loading indicator**
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  itemCount: customerProvider.customers.length,
+                  itemBuilder: (context, index) {
+                    final customer = customerProvider.customers[index];
+                    return CustomerCard(
+                      companyName: customer.companyName,
+                      street: customer.address.street,
+                      city: customer.address.city,
+                      country: customer.address.country,
+                      firstName: customer.contactDetails.firstName,
+                      lastName: customer.contactDetails.lastName,
+                      email: customer.contactDetails.email,
+                      mobile: customer.contactDetails.mobile,
+                      onDelete: () {
+                        customerProvider.deleteCustomer(customer.id);
+                      },
+                      onUpdate: () {
+                        print("updated!");
+                      },
+                    );
+                  },
                 ),
-              ],
-            )
-        ,
-        CustomerCard(
-          companyName: 'Amana Qatar Contracting',
-          street: '55 Al-Salam St',
-          city: 'Doha',
-          country: 'Qatar',
-          firstName: 'Ali',
-          lastName: 'Al-Omari',
-          email: 'ali@aqc.com.qa',
-          mobile: '7780-7800',
-          onDelete: () {
-            // Handle delete action
-          },
-          onUpdate: () {
-            // update
-          },
         ),
       ]),
     );
@@ -102,18 +113,18 @@ const CustomerCard({
 @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Container(
         width: double.infinity,
         child: Card(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   companyName,
-                  style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8.0),
                 Text("Address: $street, $city, $country"),
@@ -126,7 +137,7 @@ const CustomerCard({
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                        onPressed: () => onUpdate, // navigate to update screen
+                        onPressed: () => onUpdate(), // navigate to update screen
                         style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 207, 252, 72)),
                         child: const Text(
                           "Update Customer",
@@ -134,7 +145,7 @@ const CustomerCard({
                           ),
                       ),
                       ElevatedButton(
-                        onPressed: () => onDelete, // navigate to update screen
+                        onPressed: () => onDelete(), // navigate to update screen
                         style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 170, 11, 0)),
                         child: const Text(
                           "Delete Customer",

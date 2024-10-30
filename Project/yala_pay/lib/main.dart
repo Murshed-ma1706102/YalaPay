@@ -12,7 +12,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => InvoiceProvider()),
         ChangeNotifierProvider(create: (_) => ChequeProvider()),
-        ChangeNotifierProvider(create: (_) => CustomerProvider()),
+        ChangeNotifierProvider(create: (_) => CustomerProvider()..loadCustomers()),
 
         // Standard ChangeNotifierProvider for UserProvider without async initialization
         ChangeNotifierProvider(create: (_) => UserProvider()),
