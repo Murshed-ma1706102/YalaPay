@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:yala_pay/screens/customers_screen.dart';
 
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
@@ -43,6 +44,11 @@ class AppRouter {
             path: '/invoices',
             name: 'invoices',
             builder: (context, state) => const InvoicesScreen(),
+          ),
+          GoRoute(
+            path: '/customer',
+            name: 'customer',
+            builder: (context, state) => const CustomersScreen(),
           ),
         ],
       ),

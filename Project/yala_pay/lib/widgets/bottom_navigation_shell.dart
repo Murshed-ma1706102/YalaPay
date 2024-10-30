@@ -33,6 +33,9 @@ class _BottomNavigationShellState extends State<BottomNavigationShell> {
       case 3:
         context.go('/invoices');
         break;
+      case 4:
+        context.go('/customer');
+        break;
     }
   }
 
@@ -61,6 +64,10 @@ class _BottomNavigationShellState extends State<BottomNavigationShell> {
           BottomNavigationBarItem(
             icon: Icon(Icons.receipt),
             label: 'Invoices',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'customer',
           ),
         ],
       ),
