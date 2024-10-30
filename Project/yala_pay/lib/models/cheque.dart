@@ -1,12 +1,12 @@
 class Cheque {
-  final int chequeNo;
-  final double amount;
-  final String drawer;
-  final String bankName;
-  final String status;
-  final DateTime receivedDate;
-  final DateTime dueDate;
-  final String chequeImageUri;
+  int chequeNo;
+  double amount;
+  String drawer;
+  String bankName;
+  String status; // e.g., "Awaiting", "Deposited", "Cashed", "Returned"
+  DateTime receivedDate;
+  DateTime dueDate;
+  String chequeImageUri;
 
   Cheque({
     required this.chequeNo,
@@ -19,10 +19,11 @@ class Cheque {
     required this.chequeImageUri,
   });
 
+  // Create a Cheque object from JSON
   factory Cheque.fromJson(Map<String, dynamic> json) {
     return Cheque(
       chequeNo: json['chequeNo'],
-      amount: json['amount'],
+      amount: json['amount'].toDouble(),
       drawer: json['drawer'],
       bankName: json['bankName'],
       status: json['status'],
@@ -32,14 +33,17 @@ class Cheque {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'chequeNo': chequeNo,
-        'amount': amount,
-        'drawer': drawer,
-        'bankName': bankName,
-        'status': status,
-        'receivedDate': receivedDate.toIso8601String(),
-        'dueDate': dueDate.toIso8601String(),
-        'chequeImageUri': chequeImageUri,
-      };
+  // Convert a Cheque object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'chequeNo': chequeNo,
+      'amount': amount,
+      'drawer': drawer,
+      'bankName': bankName,
+      'status': status,
+      'receivedDate': receivedDate.toIso8601String(),
+      'dueDate': dueDate.toIso8601String(),
+      'chequeImageUri': chequeImageUri,
+    };
+  }
 }

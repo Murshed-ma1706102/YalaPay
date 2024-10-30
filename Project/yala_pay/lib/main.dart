@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yala_pay/providers/cheque_deposit_provider.dart';
 import 'package:yala_pay/providers/cheque_provider.dart';
 import 'package:yala_pay/providers/customer_provider.dart';
 import 'package:yala_pay/providers/invoice_provider.dart';
@@ -12,7 +13,10 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => InvoiceProvider()),
         ChangeNotifierProvider(create: (_) => ChequeProvider()),
-        ChangeNotifierProvider(create: (_) => CustomerProvider()..loadCustomers()),
+        ChangeNotifierProvider(
+            create: (_) => CustomerProvider()..loadCustomers()),
+        ChangeNotifierProvider(create: (_) => ChequeProvider()..loadCheques()),
+        ChangeNotifierProvider(create: (_) => ChequeDepositProvider()),
 
         // Standard ChangeNotifierProvider for UserProvider without async initialization
         ChangeNotifierProvider(create: (_) => UserProvider()),

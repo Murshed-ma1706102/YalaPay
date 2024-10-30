@@ -1,48 +1,52 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
 import '../models/cheque_deposit.dart';
-import 'base_repository.dart';
 
-class ChequeDepositRepository implements BaseRepository<ChequeDeposit> {
-  final List<ChequeDeposit> _chequeDeposits = [];
+class ChequeDepositRepository {
+  List<ChequeDeposit> _deposits = [];
 
-  @override
-  List<ChequeDeposit> getAll() => _chequeDeposits;
-
-  @override
-  ChequeDeposit? getById(String id) {
+  // Fetch all cheque deposits asynchronously from a data source
+  Future<void> fetchAllAsync() async {
     try {
-      return _chequeDeposits.firstWhere((deposit) => deposit.id == id);
+      // Load the JSON data from assets
+      final String response = await rootBundle
+          .loadString('assets/YalaPay-data/cheque-deposits.json');
+      final List<dynamic> data = json.decode(response);
+
+      // Parse the JSON data into a list of ChequeDeposit objects
+      _deposits =
+          data.map((jsonItem) => ChequeDeposit.fromJson(jsonItem)).toList();
     } catch (e) {
-      return null; // Return null if no cheque deposit is found
+      print("Error loading cheque deposits: $e");
+      _deposits = []; // Set to an empty list in case of an error
     }
   }
 
-  @override
+  // Get all deposits
+  List<ChequeDeposit> getAll() {
+    return _deposits;
+  }
+
+  // Add a new deposit
   void add(ChequeDeposit deposit) {
-    _chequeDeposits.add(deposit);
+    _deposits.add(deposit);
+    // Persist new deposit to data source if needed
   }
 
-  @override
+  // Update an existing deposit
   void update(String id, ChequeDeposit updatedDeposit) {
-    final index = _chequeDeposits.indexWhere((deposit) => deposit.id == id);
+    final index = _deposits.indexWhere((deposit) => deposit.id == id);
     if (index != -1) {
-      _chequeDeposits[index] = updatedDeposit;
+      _deposits[index] = updatedDeposit;
+      // Update deposit in data source if needed
     }
   }
 
-  @override
+  // Delete a deposit by ID
   void delete(String id) {
-    _chequeDeposits.removeWhere((deposit) => deposit.id == id);
-  }
-
-  // Retrieve all deposits by status
-  List<ChequeDeposit> getByStatus(String status) {
-    return _chequeDeposits
-        .where((deposit) => deposit.status == status)
-        .toList();
-  }
-
-  // Load initial data from JSON if needed
-  Future<void> loadInitialData(List<ChequeDeposit> deposits) async {
-    _chequeDeposits.addAll(deposits);
+    _deposits.removeWhere((deposit) => deposit.id == id);
+    // Remove deposit from data source if needed
   }
 }

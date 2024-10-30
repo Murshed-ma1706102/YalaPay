@@ -39,7 +39,7 @@ class AppRouter {
           GoRoute(
             path: '/cheques',
             name: 'cheques',
-            builder: (context, state) => const ChequesScreen(),
+            builder: (context, state) => ChequesScreen(),
           ),
           GoRoute(
             path: '/invoices',
@@ -47,17 +47,16 @@ class AppRouter {
             builder: (context, state) => const InvoicesScreen(),
           ),
           GoRoute(
-            path: '/customer',
-            name: 'customer',
-            builder: (context, state) => const CustomersScreen(),
-            routes: [
-              GoRoute(
-                path: '/customer/addCustomer',
-                name: 'addCustomer',
-                builder: (context, state) =>  AddCustomerScreen(),
-              )
-            ]
-          ),
+              path: '/customer',
+              name: 'customer',
+              builder: (context, state) => const CustomersScreen(),
+              routes: [
+                GoRoute(
+                  path: '/customer/addCustomer',
+                  name: 'addCustomer',
+                  builder: (context, state) => AddCustomerScreen(),
+                )
+              ]),
         ],
       ),
     ],

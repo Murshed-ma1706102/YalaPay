@@ -3,75 +3,49 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 import '../models/cheque.dart';
-import 'base_repository.dart';
 
-class ChequeRepository implements BaseRepository<Cheque> {
-  final List<Cheque> _cheques = [];
+class ChequeRepository {
+  late List<Cheque> _cheques = [];
 
-  // Synchronous methods as required by BaseRepository
-  @override
-  List<Cheque> getAll() => _cheques;
-
-  @override
-  Cheque? getById(String chequeNo) {
+  // Fetch all cheques asynchronously from a data source
+  Future<void> fetchAllAsync() async {
     try {
-      return _cheques
-          .firstWhere((cheque) => cheque.chequeNo.toString() == chequeNo);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  @override
-  void add(Cheque cheque) {
-    _cheques.add(cheque);
-  }
-
-  @override
-  void update(String chequeNo, Cheque updatedCheque) {
-    final index =
-        _cheques.indexWhere((cheque) => cheque.chequeNo.toString() == chequeNo);
-    if (index != -1) _cheques[index] = updatedCheque;
-  }
-
-  @override
-  void delete(String chequeNo) {
-    _cheques.removeWhere((cheque) => cheque.chequeNo.toString() == chequeNo);
-  }
-
-  // Asynchronous versions of the methods
-  Future<List<Cheque>> fetchAllAsync() async {
-    if (_cheques.isEmpty) {
-      // Load JSON from assets
+      // Load the JSON data from the assets
       final String response =
           await rootBundle.loadString('assets/YalaPay-data/cheques.json');
       final List<dynamic> data = json.decode(response);
-      _cheques.addAll(data.map((json) => Cheque.fromJson(json)).toList());
+
+      // Parse the JSON data into a list of Cheque objects
+      _cheques = data.map((jsonItem) => Cheque.fromJson(jsonItem)).toList();
+    } catch (e) {
+      print("Error loading cheques: $e");
+      _cheques = []; // Set to an empty list in case of an error
     }
+  }
+
+  // Get all cheques
+  List<Cheque> getAll() {
     return _cheques;
   }
 
-  Future<Cheque?> fetchByIdAsync(String chequeNo) async {
-    await Future.delayed(Duration(milliseconds: 100)); // Simulated async delay
-    try {
-      return _cheques
-          .firstWhere((cheque) => cheque.chequeNo.toString() == chequeNo);
-    } catch (e) {
-      return null;
+  // Add a new cheque
+  void add(Cheque cheque) {
+    _cheques.add(cheque);
+    // Persist new cheque to data source if needed
+  }
+
+  // Update an existing cheque
+  void update(int chequeNo, Cheque updatedCheque) {
+    final index = _cheques.indexWhere((cheque) => cheque.chequeNo == chequeNo);
+    if (index != -1) {
+      _cheques[index] = updatedCheque;
+      // Update cheque in data source if needed
     }
   }
 
-  Future<void> addAsync(Cheque cheque) async {
-    _cheques.add(cheque);
-  }
-
-  Future<void> updateAsync(String chequeNo, Cheque updatedCheque) async {
-    final index =
-        _cheques.indexWhere((cheque) => cheque.chequeNo.toString() == chequeNo);
-    if (index != -1) _cheques[index] = updatedCheque;
-  }
-
-  Future<void> deleteAsync(String chequeNo) async {
-    _cheques.removeWhere((cheque) => cheque.chequeNo.toString() == chequeNo);
+  // Delete a cheque by cheque number
+  void delete(int chequeNo) {
+    _cheques.removeWhere((cheque) => cheque.chequeNo == chequeNo);
+    // Remove cheque from data source if needed
   }
 }

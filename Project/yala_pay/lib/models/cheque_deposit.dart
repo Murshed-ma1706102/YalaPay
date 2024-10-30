@@ -1,9 +1,11 @@
+import 'cheque.dart';
+
 class ChequeDeposit {
-  final String id;
-  final DateTime depositDate;
-  final String bankAccountNo;
-  final String status;
-  final List<int> chequeNos;
+  String id;
+  DateTime depositDate;
+  String bankAccountNo;
+  String status; // e.g., "Deposited", "Cashed"
+  List<int> chequeNos;
 
   ChequeDeposit({
     required this.id,
@@ -13,6 +15,14 @@ class ChequeDeposit {
     required this.chequeNos,
   });
 
+  // Calculate total amount by summing amounts from cheques
+  double calculateTotalAmount(List<Cheque> cheques) {
+    return cheques
+        .where((cheque) => chequeNos.contains(cheque.chequeNo))
+        .fold(0.0, (sum, cheque) => sum + cheque.amount);
+  }
+
+  // Create a ChequeDeposit object from JSON
   factory ChequeDeposit.fromJson(Map<String, dynamic> json) {
     return ChequeDeposit(
       id: json['id'],
@@ -23,11 +33,14 @@ class ChequeDeposit {
     );
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'depositDate': depositDate.toIso8601String(),
-        'bankAccountNo': bankAccountNo,
-        'status': status,
-        'chequeNos': chequeNos,
-      };
+  // Convert a ChequeDeposit object to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'depositDate': depositDate.toIso8601String(),
+      'bankAccountNo': bankAccountNo,
+      'status': status,
+      'chequeNos': chequeNos,
+    };
+  }
 }
