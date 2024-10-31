@@ -1,4 +1,4 @@
-// login_screen.dart
+// lib/screens/login_screen.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,29 +18,38 @@ class LoginScreen extends ConsumerWidget {
     final userNotifier = ref.read(userProvider.notifier);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 48.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 16),
-                const Text('YalaPay',
-                    style:
-                        TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 32),
+                const Text(
+                  'YalaPay',
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
+                ),
+                const SizedBox(height: 40),
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Email',
+                    labelStyle: TextStyle(color: Colors.blueGrey[600]),
                     filled: true,
-                    fillColor: Colors.grey[200],
+                    fillColor: Colors.blueGrey[50],
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16.0, horizontal: 16.0),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -52,18 +61,21 @@ class LoginScreen extends ConsumerWidget {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.blueGrey[600]),
                     filled: true,
-                    fillColor: Colors.grey[200],
+                    fillColor: Colors.blueGrey[50],
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
                     ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16.0, horizontal: 16.0),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -72,13 +84,13 @@ class LoginScreen extends ConsumerWidget {
                     return null;
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 if (userNotifier.errorMessage != null)
                   Text(
                     userNotifier.errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: Colors.redAccent),
                   ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
@@ -90,18 +102,24 @@ class LoginScreen extends ConsumerWidget {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blueAccent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 32, vertical: 12),
+                        horizontal: 36, vertical: 14),
                   ),
-                  child: const Text('Login', style: TextStyle(fontSize: 18)),
+                  child: const Text(
+                    'Login',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 if (userNotifier.isLoading)
                   const Padding(
-                    padding: EdgeInsets.only(top: 16),
+                    padding: EdgeInsets.only(top: 20),
                     child: CircularProgressIndicator(),
                   ),
               ],

@@ -21,7 +21,7 @@ import '../widgets/bottom_navigation_shell.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: '/dashboard',
     routes: [
       GoRoute(
         path: '/',

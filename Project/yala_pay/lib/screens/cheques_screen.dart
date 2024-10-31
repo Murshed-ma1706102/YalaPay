@@ -1,3 +1,5 @@
+// lib/screens/cheques_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -112,12 +114,18 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
 
   Widget _buildBankAccountDropdown() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: InputDecorator(
-        decoration: const InputDecoration(
+        decoration: InputDecoration(
           labelText: 'Select Bank Account',
-          border: OutlineInputBorder(),
-          contentPadding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          labelStyle: TextStyle(color: Colors.blueGrey[700]),
+          filled: true,
+          fillColor: Colors.blueGrey[50],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<String>(
@@ -145,7 +153,7 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
       scrollDirection: Axis.horizontal,
       child: DataTable(
         headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
-        columnSpacing: 16.0,
+        columnSpacing: 24.0,
         columns: const <DataColumn>[
           DataColumn(label: Text('Name')),
           DataColumn(label: Text('Bank')),
@@ -186,14 +194,12 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.blueAccent),
                     onPressed: () {
-                      // Navigate to EditChequeScreen with cheque details
                       context.go('/cheques/edit', extra: cheque);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.redAccent),
                     onPressed: () async {
-                      // Confirm before deleting
                       final shouldDelete = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -213,7 +219,6 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
                         ),
                       );
 
-                      // If confirmed, delete the cheque
                       if (shouldDelete == true) {
                         ref
                             .read(chequeProvider.notifier)
@@ -244,6 +249,7 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Cheque Deposit'),
+        backgroundColor: Colors.blueAccent,
         actions: [
           IconButton(
             icon: const Icon(Icons.view_list),
@@ -264,10 +270,10 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
               child: Card(
                 elevation: 4.0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(12.0),
                   child: Scrollbar(
                     controller: _scrollController,
                     thumbVisibility: true,
@@ -283,16 +289,17 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 32.0, vertical: 16.0),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
               onPressed: _confirmDeposit,
               child: const Text(
                 'Confirm Deposit',
-                style: TextStyle(fontSize: 16.0),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
           ),

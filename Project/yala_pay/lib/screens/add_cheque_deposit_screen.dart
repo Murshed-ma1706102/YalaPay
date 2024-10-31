@@ -1,3 +1,5 @@
+// lib/screens/add_cheque_deposit_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -67,22 +69,33 @@ class _AddChequeDepositScreenState
     final allCheques = ref.watch(chequeProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Add New Deposit')),
+      appBar: AppBar(
+        title: const Text('Add New Deposit'),
+        backgroundColor: Colors.blueAccent,
+        elevation: 2,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               DropdownButtonFormField<String>(
-                decoration:
-                    const InputDecoration(labelText: 'Select Bank Account'),
-                items: [
-                  'Account 1',
-                  'Account 2'
-                ] // Replace with actual accounts
-                    .map((account) =>
-                        DropdownMenuItem(value: account, child: Text(account)))
+                decoration: InputDecoration(
+                  labelText: 'Select Bank Account',
+                  labelStyle: TextStyle(color: Colors.blueGrey[700]),
+                  filled: true,
+                  fillColor: Colors.blueGrey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                items: ['Account 1', 'Account 2']
+                    .map((account) => DropdownMenuItem(
+                          value: account,
+                          child: Text(account),
+                        ))
                     .toList(),
                 onChanged: (value) {
                   setState(() {
@@ -92,34 +105,59 @@ class _AddChequeDepositScreenState
                 validator: (value) =>
                     value == null ? 'Please select a bank account' : null,
               ),
+              const SizedBox(height: 20),
               ListTile(
                 title: Text(
-                    'Deposit Date: ${DateFormat('dd/MM/yyyy').format(_depositDate)}'),
+                  'Deposit Date: ${DateFormat('dd/MM/yyyy').format(_depositDate)}',
+                  style: TextStyle(color: Colors.blueGrey[800]),
+                ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today,
+                      color: Colors.blueAccent),
                   onPressed: () => _selectDepositDate(context),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 24),
               const Text(
                 'Select Cheques for Deposit',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.blueGrey,
+                ),
               ),
+              const SizedBox(height: 10),
               Column(
                 children: allCheques
                     .map((cheque) => CheckboxListTile(
                           title: Text(
-                              'Cheque No: ${cheque.chequeNo} - \$${cheque.amount}'),
+                            'Cheque No: ${cheque.chequeNo} - \$${cheque.amount}',
+                            style: TextStyle(color: Colors.blueGrey[900]),
+                          ),
                           value: _selectedChequeNos.contains(cheque.chequeNo),
                           onChanged: (_) =>
                               _toggleChequeSelection(cheque.chequeNo),
+                          activeColor: Colors.blueAccent,
                         ))
                     .toList(),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: _addDeposit,
-                child: const Text('Add Deposit'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 14.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Add Deposit',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),
