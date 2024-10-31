@@ -33,11 +33,7 @@ class AppRouter {
             name: 'dashboard',
             builder: (context, state) => const DashboardScreen(),
           ),
-          GoRoute(
-            path: '/payments',
-            name: 'payments',
-            builder: (context, state) => const PaymentsScreen(),
-          ),
+          
           GoRoute(
             path: '/cheques',
             name: 'cheques',
@@ -78,8 +74,18 @@ class AppRouter {
                GoRoute(
                 path: 'addInvoice',
                 name: 'addInvoice',
-                builder: (context, state) => AddInvoiceScreen(),
-              ),
+                  builder: (context, state) => AddInvoiceScreen(),
+                ),
+                GoRoute(
+                  name: 'payments',
+                  path: '/payments/:invoiceId',
+                  builder: (context, state) {
+                    final invoiceId = state.pathParameters['invoiceId']!; 
+                    return PaymentsScreen(invoiceId: invoiceId);
+                  },
+                ),
+
+
             ]
           ),
           GoRoute(

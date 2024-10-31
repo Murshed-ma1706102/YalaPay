@@ -127,36 +127,61 @@ class InvoiceCard extends StatelessWidget {
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
+          child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Invoice #: ${invoice.id}",
-                style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+              // Invoice details
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Invoice #: ${invoice.id}",
+                      style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text("Customer ID: ${invoice.customerId}"),
+                    Text("Amount: ${invoice.amount}"),
+                    Text("Invoice Date: ${invoice.invoiceDate.toLocal()}".split(' ')[0]),
+                    Text("Due Date: ${invoice.dueDate.toLocal()}".split(' ')[0]),
+                    Text("Balance Pending: ${invoice.amount}"),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8.0),
-              Text("Customer ID: ${invoice.customerId}"),
-              Text("Amount: ${invoice.amount}"),
-              Text("Invoice Date: ${invoice.invoiceDate.toLocal()}".split(' ')[0]),
-              Text("Due Date: ${invoice.dueDate.toLocal()}".split(' ')[0]),
-              Text("Balance Pending: ${invoice.amount}"),
-              const SizedBox(height: 20.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              // Buttons in a column on the right
+              Column(
                 children: [
                   ElevatedButton(
                     onPressed: onUpdate,
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 207, 252, 72)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 207, 252, 72),
+                    ),
                     child: const Text(
                       "Update Invoice",
                       style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                     ),
                   ),
+                  const SizedBox(height: 8.0),
                   ElevatedButton(
                     onPressed: onDelete,
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 170, 11, 0)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 170, 11, 0),
+                    ),
                     child: const Text(
                       "Delete Invoice",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.goNamed('payments', pathParameters: {'invoiceId': invoice.id});
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 0, 123, 255),
+                    ),
+                    child: const Text(
+                      "Show Payments",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
