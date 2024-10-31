@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 import '../providers/cheque_provider.dart';
 import '../providers/cheque_deposit_provider.dart';
 import '../models/cheque.dart';
 import '../models/cheque_deposit.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
 
-class ChequesScreen extends StatefulWidget {
+class ChequesScreen extends ConsumerStatefulWidget {
   const ChequesScreen({super.key});
 
   @override
   _ChequesScreenState createState() => _ChequesScreenState();
 }
 
-class _ChequesScreenState extends State<ChequesScreen> {
+class _ChequesScreenState extends ConsumerState<ChequesScreen> {
   final List<Cheque> _selectedCheques = [];
   String? _selectedBankAccount;
   List<String> _bankAccounts = [];
@@ -82,24 +82,22 @@ class _ChequesScreenState extends State<ChequesScreen> {
       return;
     }
 
-    DateTime depositDate = DateTime.now();
+    final depositDate = DateTime.now();
     final deposit = ChequeDeposit(
-      id: DateTime.now().toString(),
+      id: depositDate.toString(),
       depositDate: depositDate,
       bankAccountNo: _selectedBankAccount!,
       status: 'Deposited',
       chequeNos: _selectedCheques.map((cheque) => cheque.chequeNo).toList(),
     );
 
-    final chequeDepositProvider = context.read<ChequeDepositProvider>();
-    final chequeProvider = context.read<ChequeProvider>();
+    ref.read(chequeDepositProvider.notifier).addDeposit(deposit);
 
-    chequeDepositProvider.addDeposit(deposit);
-
+    final chequeNotifier = ref.read(chequeProvider.notifier);
     for (var cheque in _selectedCheques) {
       cheque.status = 'Deposited';
       cheque.dueDate = depositDate;
-      chequeProvider.updateCheque(cheque.chequeNo, cheque);
+      chequeNotifier.updateCheque(cheque.chequeNo, cheque);
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -208,8 +206,8 @@ class _ChequesScreenState extends State<ChequesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chequeProvider = context.watch<ChequeProvider>();
-    final awaitingCheques = chequeProvider.cheques
+    final awaitingCheques = ref
+        .watch(chequeProvider)
         .where((cheque) => cheque.status == 'Awaiting')
         .toList();
 
@@ -220,7 +218,6 @@ class _ChequesScreenState extends State<ChequesScreen> {
           IconButton(
             icon: const Icon(Icons.view_list),
             onPressed: () {
-              // Navigate to ChequeDepositsScreen
               context.go('/cheques/deposits');
             },
           ),

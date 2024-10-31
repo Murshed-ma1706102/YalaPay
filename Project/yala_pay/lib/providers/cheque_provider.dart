@@ -1,64 +1,59 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/cheque_repository.dart';
 import '../models/cheque.dart';
 
-class ChequeProvider with ChangeNotifier {
-  final ChequeRepository _chequeRepository = ChequeRepository();
+class ChequeNotifier extends StateNotifier<List<Cheque>> {
+  final ChequeRepository _chequeRepository;
 
-  List<Cheque> _cheques = [];
+  ChequeNotifier(this._chequeRepository) : super([]) {
+    loadCheques();
+  }
+
   bool _isLoading = false;
 
-  // Getter to access the cheque list
-  List<Cheque> get cheques => _cheques;
   bool get isLoading => _isLoading;
 
-  // Load cheques asynchronously
   Future<void> loadCheques() async {
     _isLoading = true;
-    notifyListeners();
-
     try {
-      await _chequeRepository.fetchAllAsync(); // Load data from repository
-      _cheques = _chequeRepository.getAll(); // Update local list
+      await _chequeRepository.fetchAllAsync();
+      state = _chequeRepository.getAll();
     } catch (e) {
       print("Error loading cheques: $e");
-      _cheques = [];
+      state = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  // Retrieve a cheque by its number
   Cheque? getChequeByNumber(int chequeNo) {
     try {
-      return _cheques.firstWhere((cheque) => cheque.chequeNo == chequeNo);
+      return state.firstWhere((cheque) => cheque.chequeNo == chequeNo);
     } catch (e) {
-      return null; // Return null if no matching cheque is found
+      // Return null if no matching cheque is found
+      return null;
     }
   }
 
-  // Add a new cheque
   void addCheque(Cheque cheque) {
     _chequeRepository.add(cheque);
-    _cheques.add(cheque);
-    notifyListeners();
+    state = [...state, cheque];
   }
 
-  // Update an existing cheque
   void updateCheque(int chequeNo, Cheque updatedCheque) {
-    final index = _cheques.indexWhere((cheque) => cheque.chequeNo == chequeNo);
-    if (index != -1) {
-      _cheques[index] = updatedCheque;
-      _chequeRepository.update(chequeNo, updatedCheque);
-      notifyListeners();
-    }
+    state = [
+      for (final cheque in state)
+        if (cheque.chequeNo == chequeNo) updatedCheque else cheque,
+    ];
+    _chequeRepository.update(chequeNo, updatedCheque);
   }
 
-  // Delete a cheque
   void deleteCheque(int chequeNo) {
-    _cheques.removeWhere((cheque) => cheque.chequeNo == chequeNo);
+    state = state.where((cheque) => cheque.chequeNo != chequeNo).toList();
     _chequeRepository.delete(chequeNo);
-    notifyListeners();
   }
 }
+
+final chequeProvider = StateNotifierProvider<ChequeNotifier, List<Cheque>>(
+  (ref) => ChequeNotifier(ChequeRepository()),
+);

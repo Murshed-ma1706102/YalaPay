@@ -1,20 +1,19 @@
-// ChequeDepositDetails.dart
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:yala_pay/models/cheque_deposit.dart';
 import '../providers/cheque_provider.dart';
+import '../models/cheque_deposit.dart';
 
-class ChequeDepositDetails extends StatelessWidget {
+class ChequeDepositDetails extends ConsumerWidget {
   final ChequeDeposit deposit;
 
   ChequeDepositDetails({required this.deposit});
 
   @override
-  Widget build(BuildContext context) {
-    final chequeProvider = context.watch<ChequeProvider>();
-    final depositCheques = chequeProvider.cheques
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cheques =
+        ref.watch(chequeProvider); // Renamed variable to avoid conflict
+    final depositCheques = cheques
         .where((cheque) => deposit.chequeNos.contains(cheque.chequeNo))
         .toList();
     final totalAmount = deposit.calculateTotalAmount(depositCheques);
