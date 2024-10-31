@@ -186,13 +186,43 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.blueAccent),
                     onPressed: () {
-                      // Implement edit functionality here
+                      // Navigate to EditChequeScreen with cheque details
+                      context.go('/cheques/edit', extra: cheque);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.redAccent),
-                    onPressed: () {
-                      // Implement delete functionality here
+                    onPressed: () async {
+                      // Confirm before deleting
+                      final shouldDelete = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Delete Cheque'),
+                          content: const Text(
+                              'Are you sure you want to delete this cheque?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      );
+
+                      // If confirmed, delete the cheque
+                      if (shouldDelete == true) {
+                        ref
+                            .read(chequeProvider.notifier)
+                            .deleteCheque(cheque.chequeNo);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Cheque deleted successfully.')),
+                        );
+                      }
                     },
                   ),
                 ],
