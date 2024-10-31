@@ -9,6 +9,9 @@ class ChequeDepositProvider with ChangeNotifier {
   List<ChequeDeposit> _deposits = [];
   bool _isLoading = false;
 
+  // Auxiliary map to store additional properties for each deposit
+  final Map<String, Map<String, dynamic>> _depositDetails = {};
+
   // Getter to access the deposit list
   List<ChequeDeposit> get deposits => _deposits;
   bool get isLoading => _isLoading;
@@ -62,5 +65,25 @@ class ChequeDepositProvider with ChangeNotifier {
     _deposits.removeWhere((deposit) => deposit.id == id);
     _chequeDepositRepository.delete(id);
     notifyListeners();
+  }
+
+  void updateDepositStatus(String depositId, String status,
+      {DateTime? cashedDate, DateTime? returnDate, String? returnReason}) {
+    final deposit = _deposits.firstWhere((d) => d.id == depositId);
+    deposit.status = status;
+
+    // Update auxiliary details map
+    _depositDetails[depositId] = {
+      'cashedDate': cashedDate,
+      'returnDate': returnDate,
+      'returnReason': returnReason,
+    };
+
+    notifyListeners();
+  }
+
+  // Helper to retrieve auxiliary details
+  Map<String, dynamic>? getDepositDetails(String depositId) {
+    return _depositDetails[depositId];
   }
 }

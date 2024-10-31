@@ -1,12 +1,15 @@
 import 'package:go_router/go_router.dart';
+import 'package:yala_pay/models/cheque_deposit.dart';
 import 'package:yala_pay/screens/add_customer_screen.dart';
+import 'package:yala_pay/screens/cheque_deposit_details.dart';
 import 'package:yala_pay/screens/customers_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/payments_screen.dart';
 import '../screens/cheques_screen.dart';
 import '../screens/invoices_screen.dart';
-import '../screens/cheque_deposits_screen.dart'; // New import
+import '../screens/cheque_deposits_screen.dart';
+//import '../screens/cheque_deposit_details.dart';
 import '../widgets/bottom_navigation_shell.dart';
 
 class AppRouter {
@@ -20,16 +23,13 @@ class AppRouter {
       ),
       ShellRoute(
         builder: (context, state, child) {
-          return BottomNavigationShell(
-              child: child); // Persistent navigation shell
+          return BottomNavigationShell(child: child);
         },
         routes: [
           GoRoute(
             path: '/dashboard',
             name: 'dashboard',
-            builder: (context, state) {
-              return const DashboardScreen();
-            },
+            builder: (context, state) => const DashboardScreen(),
           ),
           GoRoute(
             path: '/payments',
@@ -42,9 +42,20 @@ class AppRouter {
             builder: (context, state) => ChequesScreen(),
             routes: [
               GoRoute(
-                path: 'deposits',
+                path: '/deposits',
                 name: 'chequeDeposits',
                 builder: (context, state) => ChequeDepositsScreen(),
+                routes: [
+                  GoRoute(
+                    path: '/details',
+                    name: 'chequeDepositDetails',
+                    builder: (context, state) {
+                      final ChequeDeposit deposit =
+                          state.extra as ChequeDeposit;
+                      return ChequeDepositDetails(deposit: deposit);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -54,16 +65,17 @@ class AppRouter {
             builder: (context, state) => const InvoicesScreen(),
           ),
           GoRoute(
-              path: '/customer',
-              name: 'customer',
-              builder: (context, state) => const CustomersScreen(),
-              routes: [
-                GoRoute(
-                  path: 'addCustomer',
-                  name: 'addCustomer',
-                  builder: (context, state) => AddCustomerScreen(),
-                ),
-              ]),
+            path: '/customer',
+            name: 'customer',
+            builder: (context, state) => const CustomersScreen(),
+            routes: [
+              GoRoute(
+                path: 'addCustomer',
+                name: 'addCustomer',
+                builder: (context, state) => AddCustomerScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     ],
