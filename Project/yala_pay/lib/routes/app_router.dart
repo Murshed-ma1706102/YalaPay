@@ -1,12 +1,12 @@
 import 'package:go_router/go_router.dart';
 import 'package:yala_pay/screens/add_customer_screen.dart';
 import 'package:yala_pay/screens/customers_screen.dart';
-
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/payments_screen.dart';
 import '../screens/cheques_screen.dart';
 import '../screens/invoices_screen.dart';
+import '../screens/cheque_deposits_screen.dart'; // New import
 import '../widgets/bottom_navigation_shell.dart';
 
 class AppRouter {
@@ -40,6 +40,13 @@ class AppRouter {
             path: '/cheques',
             name: 'cheques',
             builder: (context, state) => ChequesScreen(),
+            routes: [
+              GoRoute(
+                path: 'deposits',
+                name: 'chequeDeposits',
+                builder: (context, state) => ChequeDepositsScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: '/invoices',
@@ -52,10 +59,10 @@ class AppRouter {
               builder: (context, state) => const CustomersScreen(),
               routes: [
                 GoRoute(
-                  path: '/customer/addCustomer',
+                  path: 'addCustomer',
                   name: 'addCustomer',
                   builder: (context, state) => AddCustomerScreen(),
-                )
+                ),
               ]),
         ],
       ),
