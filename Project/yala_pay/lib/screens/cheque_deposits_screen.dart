@@ -57,7 +57,10 @@ class ChequeDepositsScreen extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.blue),
                     onPressed: () {
-                      // Implement update functionality here
+                      context.go(
+                        '/cheques/deposits/edit',
+                        extra: deposit, // Pass deposit object to edit screen
+                      );
                     },
                   ),
                   IconButton(

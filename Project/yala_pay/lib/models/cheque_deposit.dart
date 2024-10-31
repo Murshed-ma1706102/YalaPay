@@ -6,6 +6,7 @@ class ChequeDeposit {
   String bankAccountNo;
   String status; // e.g., "Deposited", "Cashed"
   List<int> chequeNos;
+  DateTime? cashedDate; // Optional cashedDate field
 
   ChequeDeposit({
     required this.id,
@@ -13,6 +14,7 @@ class ChequeDeposit {
     required this.bankAccountNo,
     required this.status,
     required this.chequeNos,
+    this.cashedDate, // Initialize as null by default
   });
 
   // Calculate total amount by summing amounts from cheques
