@@ -4,6 +4,7 @@ import 'package:yala_pay/models/cheque_deposit.dart';
 import 'package:yala_pay/screens/add_cheque_deposit_screen.dart';
 import 'package:yala_pay/screens/add_customer_screen.dart';
 import 'package:yala_pay/screens/add_invoice_screen.dart';
+import 'package:yala_pay/screens/add_payment_screen.dart';
 import 'package:yala_pay/screens/cheque_deposit_details_screen.dart';
 import 'package:yala_pay/screens/customers_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_deposit_screen.dart';
@@ -97,6 +98,14 @@ class AppRouter {
                   builder: (context, state) {
                     final invoiceId = state.pathParameters['invoiceId']!;
                     return PaymentsScreen(invoiceId: invoiceId);
+                  },
+                ),
+                GoRoute(
+                  name: 'addPayment',
+                  path: '/payments/addPayment/:invoiceId',
+                  builder: (context, state) {
+                    final invoiceId = state.pathParameters['invoiceId']!;
+                    return AddPaymentScreen(invoiceId: invoiceId);
                   },
                 ),
               ]),

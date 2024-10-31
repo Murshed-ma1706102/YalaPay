@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yala_pay/providers/new_payments_provider.dart';
+import 'package:yala_pay/routes/app_router.dart';
 import '../models/payment.dart';
 import '../providers/payment_provider.dart';
 
@@ -14,35 +16,46 @@ class PaymentsScreen extends ConsumerWidget {
     final payments = ref.watch(paymentProvider).where((payment) => payment.invoiceNo == invoiceId).toList();
 
     return Material(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              "Payments for Invoice #$invoiceId",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20.0),
-            Expanded(
-              child: payments.isEmpty
-                  ? const Center(child: Text("No payments available for this invoice."))
-                  : ListView.builder(
-                      itemCount: payments.length,
-                      itemBuilder: (context, index) {
-                        final payment = payments[index];
-                        return PaymentCard(
-                          payment: payment,
-                          onDelete: () {
-                            ref.read(paymentProvider.notifier).deletePayment(payment.id);
-                          },
-                          onUpdate: () {
-                            // Implement update logic here
-                          },
-                        );
-                      },
-                    ),
-            ),
-          ],
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {context.goNamed('addPayment', pathParameters: {'invoiceId': invoiceId});},
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    child: const Text("Add Payment"),
+                  ),
+                  Text(
+                    "Payments for Invoice #$invoiceId",
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20.0),
+              Expanded(
+                child: payments.isEmpty
+                    ? const Center(child: Text("No payments available for this invoice."))
+                    : ListView.builder(
+                        itemCount: payments.length,
+                        itemBuilder: (context, index) {
+                          final payment = payments[index];
+                          return PaymentCard(
+                            payment: payment,
+                            onDelete: () {
+                              ref.read(paymentProvider.notifier).deletePayment(payment.id);
+                            },
+                            onUpdate: () {
+                              // Implement update logic here
+                            },
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
