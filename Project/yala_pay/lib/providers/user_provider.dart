@@ -1,67 +1,76 @@
-import 'package:flutter/material.dart';
+// user_provider.dart
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../repositories/user_repository.dart';
 import '../models/user.dart';
 
-class UserProvider with ChangeNotifier {
-  final UserRepository _userRepository = UserRepository();
-  bool isLoading = true;
-  User? _currentUser;
+class UserProvider extends StateNotifier<User?> {
+  final UserRepository _userRepository;
+  bool isLoading = false;
+  String? errorMessage;
 
-  UserProvider() {
+  UserProvider(this._userRepository) : super(null) {
     _initializeUsers();
-    _loadUserSession(); // Attempt to load user session if one exists
+    _loadUserSession();
   }
 
-  List<User> get users => _userRepository.getAll();
-  User? get currentUser => _currentUser;
-
-  // Initialize users by loading from repository
   Future<void> _initializeUsers() async {
+    isLoading = true;
+    state = state; // Trigger rebuild
+
     await _userRepository.loadUsers();
     isLoading = false;
-    notifyListeners();
+    state = state; // Trigger rebuild
   }
 
-  // Load saved user session if it exists
   Future<void> _loadUserSession() async {
     final prefs = await SharedPreferences.getInstance();
     final email = prefs.getString('userEmail');
+
     if (email != null) {
-      _currentUser = _userRepository.getById(email);
+      final user = _userRepository.getById(email);
+      if (user != null) {
+        state = user;
+      }
     }
     isLoading = false;
-    notifyListeners();
+    state = state; // Trigger rebuild
   }
 
-  // Log in a user by email and password
-  User? login(String email, String password) {
+  Future<void> login(String email, String password) async {
+    isLoading = true;
+    errorMessage = null;
+    state = state; // Trigger rebuild
+
     final user = _userRepository.getById(email);
     if (user != null && user.password == password) {
-      _currentUser = user;
-      _saveUserSession(user); // Save session on successful login
-      notifyListeners();
-      return user;
+      await _saveUserSession(user);
+      state = user;
+    } else {
+      errorMessage = 'Invalid email or password';
     }
-    return null;
+
+    isLoading = false;
+    state = state; // Trigger rebuild
   }
 
-  // Log out the user and clear session
   Future<void> logout() async {
-    _currentUser = null;
+    state = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    notifyListeners();
+    errorMessage = null;
+    isLoading = false;
+    state = state; // Trigger rebuild
   }
 
-  // Get user by email without logging them in
-  User? getUserByEmail(String email) {
-    return _userRepository.getById(email);
-  }
-
-  // Save user session to local storage
   Future<void> _saveUserSession(User user) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('userEmail', user.email);
   }
 }
+
+// Define userProvider with dependency on userRepositoryProvider
+final userProvider = StateNotifierProvider<UserProvider, User?>(
+  (ref) => UserProvider(ref.read(userRepositoryProvider)),
+);
