@@ -11,8 +11,7 @@ class ChequeDepositDetails extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cheques =
-        ref.watch(chequeProvider); // Renamed variable to avoid conflict
+    final cheques = ref.watch(chequeProvider); // Watched list of cheques
     final depositCheques = cheques
         .where((cheque) => deposit.chequeNos.contains(cheque.chequeNo))
         .toList();
@@ -51,7 +50,39 @@ class ChequeDepositDetails extends ConsumerWidget {
                     trailing: IconButton(
                       icon: const Icon(Icons.visibility),
                       onPressed: () {
-                        // Display cheque image or additional details here
+                        // Debug print to check image path
+                        print(
+                            "Loading image from: assets/YalaPay-data/cheques/${cheque.chequeImageUri}");
+
+                        // Display cheque image
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('Cheque No: ${cheque.chequeNo}'),
+                                  const SizedBox(height: 8.0),
+                                  Image.asset(
+                                    'assets/YalaPay-data/cheques/${cheque.chequeImageUri}',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Text(
+                                          'Cheque image not available.');
+                                    },
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                     ),
                   );
