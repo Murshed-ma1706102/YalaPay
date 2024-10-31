@@ -5,6 +5,7 @@ import 'package:yala_pay/providers/new_invoice_provider.dart';
 import 'package:yala_pay/routes/app_router.dart';
 import '../models/invoice.dart';
 import '../providers/invoice_provider.dart';
+import 'package:intl/intl.dart';
 
 class InvoicesScreen extends ConsumerStatefulWidget {
   const InvoicesScreen({super.key});
@@ -42,6 +43,9 @@ class _InvoiceScreenState extends ConsumerState<InvoicesScreen> {
   @override
   Widget build(BuildContext context) {
     final invoices = ref.watch(invoiceProvider);
+
+    
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -122,6 +126,9 @@ class InvoiceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final dateFormat = DateFormat('yyyy-MM-dd');
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Card(
@@ -142,8 +149,8 @@ class InvoiceCard extends StatelessWidget {
                     const SizedBox(height: 8.0),
                     Text("Customer ID: ${invoice.customerId}"),
                     Text("Amount: ${invoice.amount}"),
-                    Text("Invoice Date: ${invoice.invoiceDate.toLocal()}".split(' ')[0]),
-                    Text("Due Date: ${invoice.dueDate.toLocal()}".split(' ')[0]),
+                    Text("Invoice Date: ${dateFormat.format(invoice.invoiceDate)}"),
+                    Text("Due Date: ${dateFormat.format(invoice.dueDate)}"),
                     Text("Balance Pending: ${invoice.amount}"),
                   ],
                 ),
