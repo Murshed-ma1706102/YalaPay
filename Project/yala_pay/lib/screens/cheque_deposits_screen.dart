@@ -76,7 +76,8 @@ class ChequeDepositsScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Implement the functionality to create a new deposit
+          // Navigate to AddChequeDepositScreen to create a new deposit
+          context.go('/cheques/deposits/add');
         },
         child: const Icon(Icons.add),
         tooltip: 'New Deposit',
