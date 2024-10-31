@@ -1,89 +1,81 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../repositories/cheque_deposit_repository.dart';
 import '../models/cheque_deposit.dart';
 
-class ChequeDepositProvider with ChangeNotifier {
-  final ChequeDepositRepository _chequeDepositRepository =
-      ChequeDepositRepository();
+class ChequeDepositNotifier extends StateNotifier<List<ChequeDeposit>> {
+  final ChequeDepositRepository _chequeDepositRepository;
 
-  List<ChequeDeposit> _deposits = [];
+  ChequeDepositNotifier(this._chequeDepositRepository) : super([]) {
+    loadDeposits();
+  }
+
   bool _isLoading = false;
-
-  // Auxiliary map to store additional properties for each deposit
   final Map<String, Map<String, dynamic>> _depositDetails = {};
 
-  // Getter to access the deposit list
-  List<ChequeDeposit> get deposits => _deposits;
   bool get isLoading => _isLoading;
 
-  // Load deposits asynchronously
   Future<void> loadDeposits() async {
     _isLoading = true;
-    notifyListeners();
-
     try {
-      await _chequeDepositRepository
-          .fetchAllAsync(); // Load data from repository
-      _deposits = _chequeDepositRepository.getAll(); // Update local list
+      await _chequeDepositRepository.fetchAllAsync();
+      state = _chequeDepositRepository.getAll();
     } catch (e) {
       print("Error loading deposits: $e");
-      _deposits = [];
+      state = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
     }
   }
 
-  // Retrieve a deposit by ID
   ChequeDeposit? getDepositById(String id) {
     try {
-      return _deposits.firstWhere((deposit) => deposit.id == id);
+      return state.firstWhere((deposit) => deposit.id == id);
     } catch (e) {
-      return null; // Return null if no matching deposit is found
+      // Return null if no match is found
+      return null;
     }
   }
 
-  // Add a new deposit
   void addDeposit(ChequeDeposit deposit) {
     _chequeDepositRepository.add(deposit);
-    _deposits.add(deposit);
-    notifyListeners();
+    state = [...state, deposit];
   }
 
-  // Update an existing deposit
   void updateDeposit(String id, ChequeDeposit updatedDeposit) {
-    final index = _deposits.indexWhere((deposit) => deposit.id == id);
-    if (index != -1) {
-      _deposits[index] = updatedDeposit;
-      _chequeDepositRepository.update(id, updatedDeposit);
-      notifyListeners();
-    }
+    state = [
+      for (final deposit in state)
+        if (deposit.id == id) updatedDeposit else deposit,
+    ];
+    _chequeDepositRepository.update(id, updatedDeposit);
   }
 
-  // Delete a deposit
   void deleteDeposit(String id) {
-    _deposits.removeWhere((deposit) => deposit.id == id);
+    state = state.where((deposit) => deposit.id != id).toList();
     _chequeDepositRepository.delete(id);
-    notifyListeners();
   }
 
   void updateDepositStatus(String depositId, String status,
       {DateTime? cashedDate, DateTime? returnDate, String? returnReason}) {
-    final deposit = _deposits.firstWhere((d) => d.id == depositId);
-    deposit.status = status;
-
-    // Update auxiliary details map
-    _depositDetails[depositId] = {
-      'cashedDate': cashedDate,
-      'returnDate': returnDate,
-      'returnReason': returnReason,
-    };
-
-    notifyListeners();
+    final updatedDeposits = state.map((deposit) {
+      if (deposit.id == depositId) {
+        deposit.status = status;
+        _depositDetails[depositId] = {
+          'cashedDate': cashedDate,
+          'returnDate': returnDate,
+          'returnReason': returnReason,
+        };
+      }
+      return deposit;
+    }).toList();
+    state = updatedDeposits;
   }
 
-  // Helper to retrieve auxiliary details
   Map<String, dynamic>? getDepositDetails(String depositId) {
     return _depositDetails[depositId];
   }
 }
+
+final chequeDepositProvider =
+    StateNotifierProvider<ChequeDepositNotifier, List<ChequeDeposit>>(
+  (ref) => ChequeDepositNotifier(ChequeDepositRepository()),
+);

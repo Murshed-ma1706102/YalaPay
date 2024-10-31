@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
 import '../providers/cheque_provider.dart';
 import '../providers/cheque_deposit_provider.dart';
 
-class ChequeDepositsScreen extends StatelessWidget {
+class ChequeDepositsScreen extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
-    final chequeDepositProvider = context.watch<ChequeDepositProvider>();
-    final deposits = chequeDepositProvider.deposits;
-    final allCheques = context.watch<ChequeProvider>().cheques;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final deposits =
+        ref.watch(chequeDepositProvider); // Renamed variable to avoid conflict
+    final allCheques = ref.watch(chequeProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Cheque Deposits')),
@@ -46,8 +45,6 @@ class ChequeDepositsScreen extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.visibility, color: Colors.green),
                     onPressed: () {
-                      final deposit =
-                          deposits[index]; // Get the selected deposit
                       context.go(
                         '/cheques/deposits/details',
                         extra: deposit,
@@ -59,14 +56,16 @@ class ChequeDepositsScreen extends StatelessWidget {
                     onPressed: () {
                       context.go(
                         '/cheques/deposits/edit',
-                        extra: deposit, // Pass deposit object to edit screen
+                        extra: deposit,
                       );
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      chequeDepositProvider.deleteDeposit(deposit.id);
+                      ref
+                          .read(chequeDepositProvider.notifier)
+                          .deleteDeposit(deposit.id);
                     },
                   ),
                 ],
