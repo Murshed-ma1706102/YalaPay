@@ -1,18 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yala_pay/providers/new_invoice_provider.dart';
+import 'package:yala_pay/routes/app_router.dart';
 import '../models/invoice.dart';
 import '../providers/invoice_provider.dart';
 
-class InvoicesScreen extends ConsumerWidget {
-  final TextEditingController _searchController = TextEditingController();
-
-   InvoicesScreen({super.key});
+class InvoicesScreen extends ConsumerStatefulWidget {
+  const InvoicesScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<InvoicesScreen> createState() => _InvoiceScreenState();
+}
+
+class _InvoiceScreenState extends ConsumerState<InvoicesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<Invoice> _filteredInvoices = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(_filterInvoices);
+    _filteredInvoices = ref.read(invoiceProvider); // Initialize with all invoices
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_filterInvoices);
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _filterInvoices() {
+    final query = _searchController.text;
+    setState(() {
+      _filteredInvoices = ref.read(invoiceProvider.notifier).searchInvoices(query);
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     final invoices = ref.watch(invoiceProvider);
-    final invoiceNotifier = ref.read(invoiceProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
@@ -25,9 +54,7 @@ class InvoicesScreen extends ConsumerWidget {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Navigate to add invoice screen or open a dialog
-                  },
+                  onPressed: () {context.goNamed('addInvoice');},
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: const Text(
                     "Add Invoice",
@@ -48,11 +75,6 @@ class InvoicesScreen extends ConsumerWidget {
                     filled: true,
                     fillColor: Colors.grey[200],
                   ),
-                  onChanged: (query) {
-                    ref.refresh(invoiceProvider);
-                    final searchResults = invoiceNotifier.searchInvoices(query);
-                    // Optionally handle the search results here
-                  },
                 ),
               ),
             ],
@@ -61,21 +83,20 @@ class InvoicesScreen extends ConsumerWidget {
             child: invoices.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
-                    itemCount: invoices.length,
+                    itemCount: _searchController.text.isEmpty
+                        ? invoices.length
+                        : _filteredInvoices.length,
                     itemBuilder: (context, index) {
-                      final invoice = invoices[index];
+                      final invoice = _searchController.text.isEmpty
+                          ? invoices[index]
+                          : _filteredInvoices[index];
                       return InvoiceCard(
-                        invoiceId: invoice.id,
-                        customerId: invoice.customerId,
-                        amount: invoice.amount,
-                        invoiceDate: invoice.invoiceDate,
-                        dueDate: invoice.dueDate,
-                        balancePending: invoice.amount,
+                        invoice: invoice,
                         onDelete: () {
-                          invoiceNotifier.deleteInvoice(invoice.id);
+                          ref.read(invoiceProvider.notifier).deleteInvoice(invoice.id);
                         },
                         onUpdate: () {
-                          // Implement navigation to update screen or open a dialog
+                          // Implement update logic here
                         },
                       );
                     },
@@ -88,23 +109,13 @@ class InvoicesScreen extends ConsumerWidget {
 }
 
 class InvoiceCard extends StatelessWidget {
-  final String invoiceId;
-  final String customerId;
-  final double amount;
-  final DateTime invoiceDate;
-  final DateTime dueDate;
-  final double balancePending;
+  final Invoice invoice;
   final VoidCallback onDelete;
   final VoidCallback onUpdate;
 
   const InvoiceCard({
     super.key,
-    required this.invoiceId,
-    required this.customerId,
-    required this.amount,
-    required this.invoiceDate,
-    required this.dueDate,
-    required this.balancePending,
+    required this.invoice,
     required this.onDelete,
     required this.onUpdate,
   });
@@ -120,15 +131,15 @@ class InvoiceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Invoice #: $invoiceId",
+                "Invoice #: ${invoice.id}",
                 style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8.0),
-              Text("Customer ID: $customerId"),
-              Text("Amount: $amount"),
-              Text("Invoice Date: ${invoiceDate.toLocal()}".split(' ')[0]),
-              Text("Due Date: ${dueDate.toLocal()}".split(' ')[0]),
-              Text("Balance Pending: $balancePending"),
+              Text("Customer ID: ${invoice.customerId}"),
+              Text("Amount: ${invoice.amount}"),
+              Text("Invoice Date: ${invoice.invoiceDate.toLocal()}".split(' ')[0]),
+              Text("Due Date: ${invoice.dueDate.toLocal()}".split(' ')[0]),
+              Text("Balance Pending: ${invoice.amount}"),
               const SizedBox(height: 20.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

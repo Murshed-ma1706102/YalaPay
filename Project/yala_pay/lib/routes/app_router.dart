@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:yala_pay/models/cheque_deposit.dart';
 import 'package:yala_pay/screens/add_customer_screen.dart';
+import 'package:yala_pay/screens/add_invoice_screen.dart';
 import 'package:yala_pay/screens/cheque_deposit_details_screen.dart';
 import 'package:yala_pay/screens/customers_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_deposit_screen.dart';
@@ -72,7 +73,14 @@ class AppRouter {
           GoRoute(
             path: '/invoices',
             name: 'invoices',
-            builder: (context, state) => InvoicesScreen(),
+            builder: (context, state) => const InvoicesScreen(),
+            routes: [
+               GoRoute(
+                path: 'addInvoice',
+                name: 'addInvoice',
+                builder: (context, state) => AddInvoiceScreen(),
+              ),
+            ]
           ),
           GoRoute(
             path: '/customer',
