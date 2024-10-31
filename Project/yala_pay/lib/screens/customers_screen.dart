@@ -60,7 +60,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: ElevatedButton(
-                  onPressed: () => {context.go('/customer/addCustomer')}, // Navigate to add screen
+                  onPressed: () => {context.goNamed('addCustomer')}, // Navigate to add screen
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   child: const Text(
                     "Add Customer",

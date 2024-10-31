@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:yala_pay/models/address.dart';
+import 'package:yala_pay/models/contact_details.dart';
+import 'package:yala_pay/models/customer.dart';
+import 'package:yala_pay/providers/customer_provider.dart';
+import 'package:yala_pay/routes/app_router.dart';
 
 class AddCustomerScreen extends StatelessWidget {
   
@@ -12,12 +19,40 @@ class AddCustomerScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
 
-  AddCustomerScreen({Key? key}) : super(key: key);
+  
+
+  AddCustomerScreen({super.key});
 
  
 
   @override
   Widget build(BuildContext context) {
+    
+    final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
+
+    void addCustomer(){
+
+    var newCustomer = Customer(
+      id: UniqueKey().toString(), // Generate a unique ID
+    companyName: companyNameController.text,
+    address: Address(
+      street: streetController.text,
+      city: cityController.text,
+      country: countryController.text,
+    ),
+    contactDetails: ContactDetails(
+      firstName: firstNameController.text,
+      lastName: lastNameController.text,
+      email: emailController.text,
+      mobile: mobileController.text,
+    )
+    );
+
+    customerProvider.addCustomer(newCustomer);
+
+    context.goNamed('customer');
+    }
+    
     return Material(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -117,7 +152,7 @@ class AddCustomerScreen extends StatelessWidget {
               ),
               const SizedBox(height: 24.0),
               ElevatedButton(
-                onPressed: () => {},
+                onPressed: () => addCustomer(),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   shape: RoundedRectangleBorder(
