@@ -21,12 +21,12 @@ import '../widgets/bottom_navigation_shell.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/dashboard',
+    initialLocation: '/',
     routes: [
       GoRoute(
         path: '/',
         name: 'login',
-        builder: (context, state) => const LoginScreen(),
+        builder: (context, state) => LoginScreen(),
       ),
       ShellRoute(
         builder: (context, state, child) {

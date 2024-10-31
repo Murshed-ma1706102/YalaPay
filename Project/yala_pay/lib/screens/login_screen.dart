@@ -1,65 +1,21 @@
+// login_screen.dart
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../models/user.dart';
-import '../providers/user_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/user_provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
-
-  @override
-  _LoginScreenState createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreen extends ConsumerWidget {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  String? _errorMessage;
 
-  // Save user data on successful login
-  Future<void> _saveUser(User user) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('userEmail', user.email);
-    await prefs.setString('userFirstName', user.firstName);
-    await prefs.setString('userLastName', user.lastName);
-  }
-
-  void _login() {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-
-    if (_formKey.currentState?.validate() ?? false) {
-      User? user = userProvider.getUserByEmail(_emailController.text);
-
-      if (user != null && user.password == _passwordController.text) {
-        setState(() {
-          _errorMessage = null;
-        });
-        _saveUser(user); // Save user information
-        context.go(
-          '/dashboard',
-          extra: user, // Pass user object to dashboard
-        );
-      } else {
-        setState(() {
-          _errorMessage = 'Invalid email or password';
-        });
-      }
-    }
-  }
+  LoginScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-
-    if (userProvider.isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUser = ref.watch(userProvider);
+    final userNotifier = ref.read(userProvider.notifier);
 
     return Scaffold(
       body: Center(
@@ -78,7 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 TextFormField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    labelText: 'email',
+                    labelText: 'Email',
                     filled: true,
                     fillColor: Colors.grey[200],
                     border: OutlineInputBorder(
@@ -101,7 +57,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
-                    labelText: 'password',
+                    labelText: 'Password',
                     filled: true,
                     fillColor: Colors.grey[200],
                     border: OutlineInputBorder(
@@ -117,14 +73,22 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                if (_errorMessage != null)
+                if (userNotifier.errorMessage != null)
                   Text(
-                    _errorMessage!,
+                    userNotifier.errorMessage!,
                     style: const TextStyle(color: Colors.red),
                   ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: _login,
+                  onPressed: () async {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      await userNotifier.login(
+                          _emailController.text, _passwordController.text);
+                      if (currentUser != null) {
+                        context.go('/dashboard', extra: currentUser);
+                      }
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
@@ -135,18 +99,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   child: const Text('Login', style: TextStyle(fontSize: 18)),
                 ),
+                if (userNotifier.isLoading)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: CircularProgressIndicator(),
+                  ),
               ],
             ),
           ),
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

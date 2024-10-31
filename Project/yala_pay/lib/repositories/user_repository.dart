@@ -1,17 +1,19 @@
+// user_repository.dart
+
 import 'dart:convert';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user.dart';
-import 'base_repository.dart';
 
-class UserRepository implements BaseRepository<User> {
+class UserRepository {
   final List<User> _users = [];
 
   UserRepository();
 
   Future<void> loadUsers() async {
-    await _loadUsersFromJson();
-    print(
-        "Users loaded: ${_users.map((user) => user.email).toList()}"); // Debug print
+    if (_users.isEmpty) {
+      await _loadUsersFromJson();
+    }
   }
 
   Future<void> _loadUsersFromJson() async {
@@ -20,17 +22,13 @@ class UserRepository implements BaseRepository<User> {
           await rootBundle.loadString('assets/YalaPay-data/users.json');
       final List<dynamic> jsonData = json.decode(jsonString);
       _users.addAll(jsonData.map((userJson) => User.fromJson(userJson)));
-      print(
-          "Loaded users: ${_users.map((user) => user.email).toList()}"); // Debugging output
     } catch (e) {
       print("Error loading users.json: $e");
     }
   }
 
-  @override
   List<User> getAll() => _users;
 
-  @override
   User? getById(String email) {
     try {
       return _users.firstWhere((user) => user.email == email);
@@ -39,16 +37,18 @@ class UserRepository implements BaseRepository<User> {
     }
   }
 
-  @override
   void add(User user) => _users.add(user);
 
-  @override
   void update(String email, User updatedUser) {
     final index = _users.indexWhere((user) => user.email == email);
     if (index != -1) _users[index] = updatedUser;
   }
 
-  @override
   void delete(String email) =>
       _users.removeWhere((user) => user.email == email);
 }
+
+// Define userRepositoryProvider
+final userRepositoryProvider = Provider<UserRepository>((ref) {
+  return UserRepository();
+});
