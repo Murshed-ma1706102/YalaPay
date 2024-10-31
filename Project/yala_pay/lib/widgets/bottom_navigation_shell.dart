@@ -54,8 +54,8 @@ class _BottomNavigationShellState extends State<BottomNavigationShell> {
             label: 'Dashboard',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.payment),
-            label: 'Payments',
+            icon: Icon(Icons.edit_document),
+            label: 'Reports',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.check),
