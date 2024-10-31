@@ -9,6 +9,7 @@ import 'package:yala_pay/screens/cheque_deposit_details_screen.dart';
 import 'package:yala_pay/screens/customers_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_deposit_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_screen.dart';
+import 'package:yala_pay/screens/invoices_report_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/payments_screen.dart';
@@ -36,6 +37,11 @@ class AppRouter {
             path: '/dashboard',
             name: 'dashboard',
             builder: (context, state) => const DashboardScreen(),
+          ),
+          GoRoute(
+            path: '/reports',
+            name: 'reports',
+            builder: (context, state) => const InvoicesReportScreen(),
           ),
           GoRoute(
             path: '/cheques',

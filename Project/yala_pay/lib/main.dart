@@ -11,7 +11,7 @@ import 'package:yala_pay/routes/app_router.dart';
 void main() {
   runApp(
 
-    const ProviderScope( // Wrap the app in ProviderScope
+    const ProviderScope( // for riverPod
       child: MyApp(),
     )
     /*

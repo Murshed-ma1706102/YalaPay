@@ -25,7 +25,7 @@ class _BottomNavigationShellState extends State<BottomNavigationShell> {
         context.go('/dashboard');
         break;
       case 1:
-        context.go('/payments');
+        context.go('/reports');
         break;
       case 2:
         context.go('/cheques');

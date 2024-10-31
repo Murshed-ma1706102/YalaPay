@@ -49,6 +49,21 @@ class InvoiceNotifier extends StateNotifier<List<Invoice>> {
             invoice.id.toLowerCase().contains(query.toLowerCase()))
         .toList();
   }
+
+    List<Invoice> getInvoicesByDateAndStatus({
+    DateTime? fromDate,
+    DateTime? toDate,
+    String status = "All",
+  }) {
+    return state.where((invoice) {
+      final isInDateRange =
+          (fromDate == null || invoice.invoiceDate.isAfter(fromDate)) &&
+              (toDate == null || invoice.invoiceDate.isBefore(toDate));
+      final matchesStatus = (status == "All" || invoice.status == status);
+
+      return isInDateRange && matchesStatus;
+    }).toList();
+  }
 }
 
 // Provide an instance of InvoiceNotifier
