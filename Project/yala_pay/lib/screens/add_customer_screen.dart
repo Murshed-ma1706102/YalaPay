@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:yala_pay/models/address.dart';
-import 'package:yala_pay/models/contact_details.dart';
-import 'package:yala_pay/models/customer.dart';
-import 'package:yala_pay/providers/customer_provider.dart';
-import 'package:yala_pay/routes/app_router.dart';
+import 'package:yala_pay/providers/new_customer_provider.dart';
+import '../models/address.dart';
+import '../models/contact_details.dart';
+import '../models/customer.dart';
+import '../providers/customer_provider.dart';
 
-class AddCustomerScreen extends StatelessWidget {
-  
-
+class AddCustomerScreen extends ConsumerWidget {
   final TextEditingController companyNameController = TextEditingController();
   final TextEditingController streetController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
@@ -19,42 +17,39 @@ class AddCustomerScreen extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController mobileController = TextEditingController();
 
-  
-
   AddCustomerScreen({super.key});
 
- 
-
   @override
-  Widget build(BuildContext context) {
-    
-    final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
+  Widget build(BuildContext context, WidgetRef ref) {
+    void addCustomer() {
+      var newCustomer = Customer(
+        id: UniqueKey().toString(), // Generate a unique ID
+        companyName: companyNameController.text,
+        address: Address(
+          street: streetController.text,
+          city: cityController.text,
+          country: countryController.text,
+        ),
+        contactDetails: ContactDetails(
+          firstName: firstNameController.text,
+          lastName: lastNameController.text,
+          email: emailController.text,
+          mobile: mobileController.text,
+        ),
+      );
 
-    void addCustomer(){
+      // Add the customer to the state using Riverpod
+      ref.read(customerProvider.notifier).addCustomer(newCustomer);
 
-    var newCustomer = Customer(
-      id: UniqueKey().toString(), // Generate a unique ID
-    companyName: companyNameController.text,
-    address: Address(
-      street: streetController.text,
-      city: cityController.text,
-      country: countryController.text,
-    ),
-    contactDetails: ContactDetails(
-      firstName: firstNameController.text,
-      lastName: lastNameController.text,
-      email: emailController.text,
-      mobile: mobileController.text,
-    )
-    );
-
-    customerProvider.addCustomer(newCustomer);
-
-    context.goNamed('customer');
+      // Navigate back to the customer list screen
+      context.goNamed('customer');
     }
-    
-    return Material(
-      child: Padding(
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Add Customer"),
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           child: ListView(
@@ -71,7 +66,8 @@ class AddCustomerScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.business),
                 ),
-                validator: (value) => value!.isEmpty ? "Enter company name" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Enter company name" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -81,7 +77,8 @@ class AddCustomerScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.location_on),
                 ),
-                validator: (value) => value!.isEmpty ? "Enter street address" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Enter street address" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -116,7 +113,8 @@ class AddCustomerScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person),
                 ),
-                validator: (value) => value!.isEmpty ? "Enter first name" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Enter first name" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -133,7 +131,7 @@ class AddCustomerScreen extends StatelessWidget {
                 controller: emailController,
                 decoration: const InputDecoration(
                   labelText: "Email",
-                  border: const OutlineInputBorder(),
+                  border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
                 ),
                 keyboardType: TextInputType.emailAddress,
@@ -148,18 +146,22 @@ class AddCustomerScreen extends StatelessWidget {
                   prefixIcon: Icon(Icons.phone),
                 ),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value!.isEmpty ? "Enter mobile number" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Enter mobile number" : null,
               ),
               const SizedBox(height: 24.0),
               ElevatedButton(
-                onPressed: () => addCustomer(),
+                onPressed: addCustomer,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                child: const Text("Add Customer", style: TextStyle(fontSize: 16.0)),
+                child: const Text(
+                  "Add Customer",
+                  style: TextStyle(fontSize: 16.0),
+                ),
               ),
             ],
           ),
@@ -168,3 +170,4 @@ class AddCustomerScreen extends StatelessWidget {
     );
   }
 }
+

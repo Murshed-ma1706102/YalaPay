@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:yala_pay/providers/customer_provider.dart';
+import 'package:yala_pay/providers/new_customer_provider.dart';
 import '../models/customer.dart';
 
-class CustomersScreen extends StatefulWidget {
+class CustomersScreen extends ConsumerStatefulWidget {
   const CustomersScreen({super.key});
 
   @override
-  State<CustomersScreen> createState() => _CustomersScreenState();
+  ConsumerState<CustomersScreen> createState() => _CustomersScreenState();
 }
 
-class _CustomersScreenState extends State<CustomersScreen> {
+class _CustomersScreenState extends ConsumerState<CustomersScreen> {
   final TextEditingController _searchController = TextEditingController();
   List<Customer> _filteredCustomers = []; // List to hold filtered customers
 
@@ -19,6 +21,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(_filterCustomers);
+    _filteredCustomers = ref.read(customerProvider); // Initialize with all customers
   }
 
   @override
@@ -29,25 +32,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
   } // to clean up after the widget is removed from the widget tree
 
   void _filterCustomers() {
-    final customerProvider = Provider.of<CustomerProvider>(context, listen: false);
-    final query = _searchController.text.toLowerCase();
-
+    final query = _searchController.text;
     setState(() {
-      _filteredCustomers = customerProvider.customers.where((customer) {
-        final name = customer.companyName.toLowerCase();
-        return name.contains(query);
-      }).toList();
-
-      _filteredCustomers = customerProvider.customers.where((customer) {
-        final name = customer.companyName.toLowerCase();
-        return name.contains(query);
-      }).toList();
+      _filteredCustomers = ref.read(customerProvider.notifier).searchCustomers(query);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final customerProvider = Provider.of<CustomerProvider>(context);
+   final customers = ref.watch(customerProvider);
     
     return Scaffold(
       appBar: AppBar(
@@ -86,15 +79,15 @@ class _CustomersScreenState extends State<CustomersScreen> {
             ],
           ),
           Expanded(
-            child: customerProvider.isLoading
+            child: customers.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : ListView.builder(
                     itemCount: _searchController.text.isEmpty
-                        ? customerProvider.customers.length
+                        ? customers.length
                         : _filteredCustomers.length, // Show filtered or all customers
                     itemBuilder: (context, index) {
                       final customer = _searchController.text.isEmpty
-                          ? customerProvider.customers[index]
+                          ? customers[index]
                           : _filteredCustomers[index];
                       return CustomerCard(
                         companyName: customer.companyName,
@@ -106,7 +99,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
                         email: customer.contactDetails.email,
                         mobile: customer.contactDetails.mobile,
                         onDelete: () {
-                          customerProvider.deleteCustomer(customer.id);
+                          ref.read(customerProvider.notifier).deleteCustomer(customer.id);
                         },
                         onUpdate: () {
                           print("updated!");

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 import 'package:yala_pay/providers/cheque_deposit_provider.dart';
 import 'package:yala_pay/providers/cheque_provider.dart';
@@ -9,6 +10,11 @@ import 'package:yala_pay/routes/app_router.dart';
 
 void main() {
   runApp(
+
+    const ProviderScope( // Wrap the app in ProviderScope
+      child: MyApp(),
+    )
+    /*
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => InvoiceProvider()),
@@ -22,7 +28,9 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
       child: const MyApp(),
-    ),
+      
+    )
+    */
   );
 }
 
