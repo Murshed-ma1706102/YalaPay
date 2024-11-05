@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:yala_pay/providers/new_payments_provider.dart';
+import 'package:yala_pay/providers/payments_provider.dart';
 import '../models/payment.dart';
-import '../providers/payment_provider.dart';
+import '../providers/_payment_provider.dart';
 
 class AddPaymentScreen extends ConsumerWidget {
   final TextEditingController amountController = TextEditingController();

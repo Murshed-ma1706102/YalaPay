@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:yala_pay/providers/new_customer_provider.dart';
+import 'package:yala_pay/providers/customer_provider.dart';
 import '../models/address.dart';
 import '../models/contact_details.dart';
 import '../models/customer.dart';
-import '../providers/customer_provider.dart';
+import '../providers/_customer_provider.dart';
 
 class AddCustomerScreen extends ConsumerWidget {
   final TextEditingController companyNameController = TextEditingController();

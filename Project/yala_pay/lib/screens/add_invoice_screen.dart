@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:yala_pay/providers/new_invoice_provider.dart';
+import 'package:yala_pay/providers/invoice_provider.dart';
 import '../models/invoice.dart';
 
 class AddInvoiceScreen extends ConsumerWidget {

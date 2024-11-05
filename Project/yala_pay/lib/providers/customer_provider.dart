@@ -1,76 +1,60 @@
-import 'package:flutter/material.dart';
-import '../repositories/customer_repository.dart';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yala_pay/models/address.dart';
+import 'package:yala_pay/models/contact_details.dart';
 import '../models/customer.dart';
 
-class CustomerProvider with ChangeNotifier {
-  final CustomerRepository _customerRepository = CustomerRepository();
-
-  List<Customer> _customers = [];
-  bool _isLoading = false;
-
-  // Getter to access the customer list
-  List<Customer> get customers => _customers;
-
-  bool get isLoading => _isLoading;
-
-  // Initialize or refresh customer data asynchronously
-  Future<void> loadCustomers() async {
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      await _customerRepository
-          .fetchAllAsync(); // Populate _customers in repository
-      _customers = _customerRepository.getAll(); // Update provider's local list
-    } catch (e) {
-      print("Error loading customers: $e");
-      _customers = []; // Clear customer list in case of error
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+class CustomerNotifier extends StateNotifier<List<Customer>> {
+  CustomerNotifier() : super([]) {
+    loadCustomers();
   }
 
-  // Retrieve a customer by ID
-  Customer? getCustomerById(String id) {
+  // Load initial customers (you can modify this to load from JSON or API)
+  Future<void> loadCustomers() async {
     try {
-      return _customers.firstWhere((customer) => customer.id == id);
+      // Load JSON data from the assets
+      final String response = await rootBundle.loadString('assets/YalaPay-data/customers.json');
+      final List<dynamic> data = json.decode(response);
+
+      // Parse JSON data into a list of Invoice objects
+      state = data.map((json) => Customer.fromJson(json)).toList();
     } catch (e) {
-      return null; // Return null if no matching customer is found
+      print('Error loading invoices: $e');
+      state = []; // Set state to empty list if loading fails
     }
   }
 
   // Add a new customer
   void addCustomer(Customer customer) {
-    _customerRepository.add(customer);
-    _customers.add(customer);
-    notifyListeners();
+    state = [...state, customer];
   }
 
   // Update an existing customer
   void updateCustomer(String id, Customer updatedCustomer) {
-    final index = _customers.indexWhere((customer) => customer.id == id);
-    if (index != -1) {
-      _customers[index] = updatedCustomer;
-      _customerRepository.update(id, updatedCustomer);
-      notifyListeners();
-    }
+    state = [
+      for (final customer in state)
+        if (customer.id == id) updatedCustomer else customer,
+    ];
   }
 
   // Delete a customer
   void deleteCustomer(String id) {
-    _customers.removeWhere((customer) => customer.id == id);
-    _customerRepository.delete(id);
-    notifyListeners();
+    state = state.where((customer) => customer.id != id).toList();
   }
 
-  // Retrieve customers associated with a specific user by their first name
-  List<Customer> getCustomersForUser(String userName) {
-    final matchingCustomers = _customers
-        .where((customer) => customer.contactDetails.firstName == userName)
+  // Filter customers based on search query
+  List<Customer> searchCustomers(String query) {
+    if (query.isEmpty) return state;
+    return state
+        .where((customer) =>
+            customer.companyName.toLowerCase().contains(query.toLowerCase()))
         .toList();
-    print(
-        "Matching customers for user $userName: $matchingCustomers"); // Debug statement
-    return matchingCustomers;
   }
 }
+
+// Provider for accessing CustomerNotifier
+final customerProvider = StateNotifierProvider<CustomerNotifier, List<Customer>>((ref) {
+  return CustomerNotifier();
+});

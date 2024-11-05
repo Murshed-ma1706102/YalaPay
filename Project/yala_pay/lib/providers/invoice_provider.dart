@@ -1,75 +1,72 @@
-import 'package:flutter/material.dart';
-import '../repositories/invoice_repository.dart';
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/invoice.dart';
-import '../models/customer.dart';
 
-class InvoiceProvider with ChangeNotifier {
-  final InvoiceRepository _invoiceRepository = InvoiceRepository();
-  bool isLoading = true;
-  List<Invoice> _userInvoices = [];
-
-  // Load invoices based on a specific user's customers
-  Future<void> initializeData(List<Customer> userCustomers) async {
-    isLoading = true;
-    notifyListeners();
-
-    // Extract customer IDs
-    List<String> customerIds =
-        userCustomers.map((customer) => customer.id).toList();
-    print("Customer IDs for filtering: $customerIds"); // Debug statement
-
-    // Load all invoices and filter by customer IDs
-    await _invoiceRepository.loadInvoicesFromJson();
-    await _invoiceRepository.loadStatusesFromJson();
-    _userInvoices = _invoiceRepository
-        .getAll()
-        .where((invoice) => customerIds.contains(invoice.customerId))
-        .toList();
-
-    print("Filtered invoices for user: $_userInvoices"); // Debug statement
-
-    isLoading = false;
-    notifyListeners();
+class InvoiceNotifier extends StateNotifier<List<Invoice>> {
+  InvoiceNotifier() : super([]) {
+    loadInvoices();
   }
 
-  // Accessors
-  List<Invoice> get invoices => _userInvoices;
-  List<String> get statuses => _invoiceRepository.getStatuses();
+  // Load invoices from a JSON file or an API
+  Future<void> loadInvoices() async {
+     try {
+      // Load JSON data from the assets
+      final String response = await rootBundle.loadString('assets/YalaPay-data/invoices.json');
+      final List<dynamic> data = json.decode(response);
 
-  // Helper methods for filtering by status
-  List<Invoice> get unpaidInvoices =>
-      _userInvoices.where((invoice) => invoice.status == "Unpaid").toList();
-  List<Invoice> get partiallyPaidInvoices => _userInvoices
-      .where((invoice) => invoice.status == "Partially Paid")
-      .toList();
-  List<Invoice> get paidInvoices =>
-      _userInvoices.where((invoice) => invoice.status == "Paid").toList();
-
-  Invoice? getInvoiceById(String id) {
-    try {
-      return _userInvoices.firstWhere((invoice) => invoice.id == id);
+      // Parse JSON data into a list of Invoice objects
+      state = data.map((json) => Invoice.fromJson(json)).toList();
     } catch (e) {
-      return null; // Returns null if no match is found
+      print('Error loading invoices: $e');
+      state = []; // Set state to empty list if loading fails
     }
   }
 
+  // Add a new invoice
   void addInvoice(Invoice invoice) {
-    _invoiceRepository.add(invoice);
-    _userInvoices.add(invoice);
-    notifyListeners();
+    state = [...state, invoice];
   }
 
-  void updateInvoiceStatus(String id, String newStatus) {
-    final invoice = getInvoiceById(id);
-    if (invoice != null && statuses.contains(newStatus)) {
-      invoice.status = newStatus;
-      notifyListeners();
-    }
+  // Update an existing invoice
+  void updateInvoice(String invoiceId, Invoice updatedInvoice) {
+    state = [
+      for (final invoice in state)
+        if (invoice.id == invoiceId) updatedInvoice else invoice,
+    ];
   }
 
-  void deleteInvoice(String id) {
-    _invoiceRepository.delete(id);
-    _userInvoices.removeWhere((invoice) => invoice.id == id);
-    notifyListeners();
+  // Delete an invoice
+  void deleteInvoice(String invoiceId) {
+    state = state.where((invoice) => invoice.id != invoiceId).toList();
+  }
+
+  // Search for invoices by invoice number
+  List<Invoice> searchInvoices(String query) {
+    return state
+        .where((invoice) =>
+            invoice.id.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+  }
+
+    List<Invoice> getInvoicesByDateAndStatus({
+    DateTime? fromDate,
+    DateTime? toDate,
+    String status = "All",
+  }) {
+    return state.where((invoice) {
+      final isInDateRange =
+          (fromDate == null || invoice.invoiceDate.isAfter(fromDate)) &&
+              (toDate == null || invoice.invoiceDate.isBefore(toDate));
+      final matchesStatus = (status == "All" || invoice.status == status);
+
+      return isInDateRange && matchesStatus;
+    }).toList();
   }
 }
+
+// Provide an instance of InvoiceNotifier
+final invoiceProvider = StateNotifierProvider<InvoiceNotifier, List<Invoice>>((ref) {
+  return InvoiceNotifier();
+});
