@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:yala_pay/providers/payments_provider.dart';
 import 'package:yala_pay/routes/app_router.dart';
 import '../models/payment.dart';
-import '../providers/_payment_provider.dart';
+
 
 class PaymentsScreen extends ConsumerWidget {
   final String invoiceId;

@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/provider.dart';
 import 'package:yala_pay/providers/cheque_deposit_provider.dart';
 import 'package:yala_pay/providers/cheque_provider.dart';
-import 'package:yala_pay/providers/_customer_provider.dart';
-import 'package:yala_pay/providers/_invoice_provider.dart';
 import 'package:yala_pay/providers/user_provider.dart';
 import 'package:yala_pay/routes/app_router.dart';
 
@@ -14,23 +12,6 @@ void main() {
     const ProviderScope( // for riverPod
       child: MyApp(),
     )
-    /*
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => InvoiceProvider()),
-        ChangeNotifierProvider(create: (_) => ChequeProvider()),
-        ChangeNotifierProvider(
-            create: (_) => CustomerProvider()..loadCustomers()),
-        ChangeNotifierProvider(create: (_) => ChequeProvider()..loadCheques()),
-        ChangeNotifierProvider(create: (_) => ChequeDepositProvider()),
-
-        // Standard ChangeNotifierProvider for UserProvider without async initialization
-        ChangeNotifierProvider(create: (_) => UserProvider()),
-      ],
-      child: const MyApp(),
-      
-    )
-    */
   );
 }
 

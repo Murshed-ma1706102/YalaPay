@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:yala_pay/providers/invoice_provider.dart';
 import 'package:yala_pay/routes/app_router.dart';
 import '../models/invoice.dart';
-import '../providers/_invoice_provider.dart';
 import 'package:intl/intl.dart';
 
 class InvoicesScreen extends ConsumerStatefulWidget {

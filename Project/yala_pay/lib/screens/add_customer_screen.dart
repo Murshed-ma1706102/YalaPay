@@ -5,7 +5,7 @@ import 'package:yala_pay/providers/customer_provider.dart';
 import '../models/address.dart';
 import '../models/contact_details.dart';
 import '../models/customer.dart';
-import '../providers/_customer_provider.dart';
+
 
 class AddCustomerScreen extends ConsumerWidget {
   final TextEditingController companyNameController = TextEditingController();
