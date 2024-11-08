@@ -4,7 +4,7 @@ import 'package:yala_pay/providers/payments_provider.dart';
 import '../models/payment.dart';
 
 class AddPaymentScreen extends ConsumerWidget {
-  
+
   final TextEditingController amountController = TextEditingController();
   final TextEditingController paymentDateController = TextEditingController();
   final TextEditingController chequeNoController = TextEditingController();
@@ -29,6 +29,20 @@ class AddPaymentScreen extends ConsumerWidget {
 
       // Add the payment to the state using Riverpod
       ref.read(paymentProvider.notifier).addPayment(newPayment);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: const Text('payment added successfully!'),
+      duration: const Duration(seconds: 5), 
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () {
+          // Code to execute when the action is pressed.
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+      ),
+    ),
+  );
 
       // Navigate back to the previous screen
       Navigator.pop(context);

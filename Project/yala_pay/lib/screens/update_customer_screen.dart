@@ -6,23 +6,34 @@ import '../models/address.dart';
 import '../models/contact_details.dart';
 import '../models/customer.dart';
 
-class AddCustomerScreen extends ConsumerWidget {
-  final TextEditingController companyNameController = TextEditingController();
-  final TextEditingController streetController = TextEditingController();
-  final TextEditingController cityController = TextEditingController();
-  final TextEditingController countryController = TextEditingController();
-  final TextEditingController firstNameController = TextEditingController();
-  final TextEditingController lastNameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController mobileController = TextEditingController();
+class UpdateCustomerScreen extends ConsumerWidget {
+  
 
-  AddCustomerScreen({super.key});
+  final String customerId;
+
+  
+
+  UpdateCustomerScreen({Key? key, required this.customerId}) : super(key: key) {
+    
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    void addCustomer() {
-      var newCustomer = Customer(
-        id: UniqueKey().toString(), // Generate a unique ID
+
+    final customer = ref.watch(customerProvider.notifier).getCustomerById(customerId);
+
+ final TextEditingController companyNameController = TextEditingController(text: customer.companyName);
+    final TextEditingController streetController = TextEditingController(text: customer.address.street);
+    final TextEditingController cityController = TextEditingController(text: customer.address.city);
+    final TextEditingController countryController = TextEditingController(text: customer.address.country);
+    final TextEditingController firstNameController = TextEditingController(text: customer.contactDetails.firstName);
+    final TextEditingController lastNameController = TextEditingController(text: customer.contactDetails.lastName);
+    final TextEditingController emailController = TextEditingController(text: customer.contactDetails.email);
+    final TextEditingController mobileController = TextEditingController(text: customer.contactDetails.mobile);
+
+    void updateCustomer() {
+      var updatedCustomer = Customer(
+        id: customerId, // Keep the same ID
         companyName: companyNameController.text,
         address: Address(
           street: streetController.text,
@@ -37,30 +48,32 @@ class AddCustomerScreen extends ConsumerWidget {
         ),
       );
 
-      // Add the customer to the state using Riverpod
-      ref.read(customerProvider.notifier).addCustomer(newCustomer);
+      // Update the customer in the state using Riverpod
+      ref.read(customerProvider.notifier).updateCustomer(customer.id, updatedCustomer);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Customer added successfully!'),
-          duration: const Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'Dismiss',
-            onPressed: () {
-              // Code to execute when the action is pressed.
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-            },
-          ),
-        ),
-      );
+       ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: const Text('Customer updated successfully!'),
+      duration: const Duration(seconds: 5), 
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () {
+          // Code to execute when the action is pressed.
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        },
+      ),
+    ),
+  );
 
       // Navigate back to the customer list screen
       context.goNamed('customer');
     }
 
+    
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add Customer"),
+        title: const Text("Update Customer"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,8 +92,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.business),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter company name" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -90,8 +101,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.location_on),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter street address" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -101,7 +110,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.location_city),
                 ),
-                validator: (value) => value!.isEmpty ? "Enter city" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -111,7 +119,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.public),
                 ),
-                validator: (value) => value!.isEmpty ? "Enter country" : null,
               ),
               const SizedBox(height: 24.0),
               const Text(
@@ -126,8 +133,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person),
                 ),
-                validator: (value) =>
-                    value!.isEmpty ? "Enter first name" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -137,7 +142,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.person_outline),
                 ),
-                validator: (value) => value!.isEmpty ? "Enter last name" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -148,7 +152,6 @@ class AddCustomerScreen extends ConsumerWidget {
                   prefixIcon: Icon(Icons.email),
                 ),
                 keyboardType: TextInputType.emailAddress,
-                validator: (value) => value!.isEmpty ? "Enter email" : null,
               ),
               const SizedBox(height: 16.0),
               TextFormField(
@@ -159,12 +162,10 @@ class AddCustomerScreen extends ConsumerWidget {
                   prefixIcon: Icon(Icons.phone),
                 ),
                 keyboardType: TextInputType.phone,
-                validator: (value) =>
-                    value!.isEmpty ? "Enter mobile number" : null,
               ),
               const SizedBox(height: 24.0),
               ElevatedButton(
-                onPressed: addCustomer,
+                onPressed: updateCustomer,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
                   shape: RoundedRectangleBorder(
@@ -172,7 +173,7 @@ class AddCustomerScreen extends ConsumerWidget {
                   ),
                 ),
                 child: const Text(
-                  "Add Customer",
+                  "Update Customer",
                   style: TextStyle(fontSize: 16.0),
                 ),
               ),

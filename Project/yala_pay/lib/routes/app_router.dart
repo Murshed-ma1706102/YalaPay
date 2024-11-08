@@ -10,6 +10,7 @@ import 'package:yala_pay/screens/customers_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_deposit_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_screen.dart';
 import 'package:yala_pay/screens/invoices_report_screen.dart';
+import 'package:yala_pay/screens/update_customer_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/payments_screen.dart';
@@ -124,6 +125,14 @@ class AppRouter {
                 path: 'addCustomer',
                 name: 'addCustomer',
                 builder: (context, state) => AddCustomerScreen(),
+              ),
+              GoRoute(
+                path: '/customer/updateCustomer/:customerId',
+                name: 'updateCustomer',
+                builder: (context, state) {
+                  final customerId = state.pathParameters['customerId']!;
+                  return UpdateCustomerScreen(customerId: customerId);
+                  }
               ),
             ],
           ),

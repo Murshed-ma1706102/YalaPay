@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:yala_pay/models/address.dart';
@@ -51,6 +50,10 @@ class CustomerNotifier extends StateNotifier<List<Customer>> {
         .where((customer) =>
             customer.companyName.toLowerCase().contains(query.toLowerCase()))
         .toList();
+  }
+
+  Customer getCustomerById(String id) {
+    return state.firstWhere((customer) => customer.id == id, orElse: () => throw Exception('Customer not found'));
   }
 }
 

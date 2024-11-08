@@ -101,7 +101,7 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                           ref.read(customerProvider.notifier).deleteCustomer(customer.id);
                         },
                         onUpdate: () {
-                          print("updated!");
+                          context.goNamed('updateCustomer', pathParameters: {'customerId': customer.id });
                         },
                       );
                     },
