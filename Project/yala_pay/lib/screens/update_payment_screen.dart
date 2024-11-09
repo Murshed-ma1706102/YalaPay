@@ -4,26 +4,28 @@ import 'package:yala_pay/providers/payments_provider.dart';
 import '../models/payment.dart';
 import '../providers/mode_payment_provider.dart';
 
-class AddPaymentScreen extends ConsumerWidget {
-  final TextEditingController amountController = TextEditingController();
-  final TextEditingController paymentDateController = TextEditingController();
-  final TextEditingController chequeNoController = TextEditingController();
+class UpdatePaymentScreen extends ConsumerWidget {
   final List<String> paymentModes = ["cheque", "bank transfer", "credit card"];
   String selectedPaymentMode = "cheque";
 
   final String invoiceId;
+  final String paymentId;
 
-  AddPaymentScreen({super.key, required this.invoiceId});
+  UpdatePaymentScreen(
+      {super.key, required this.invoiceId, required this.paymentId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final selectedPaymentMode = ref.watch(paymentModeProvider);
-    
-    void addPayment() {
+    final payment = ref.watch(paymentProvider.notifier).getPaymentById(paymentId);
+    final TextEditingController amountController = TextEditingController(text: payment.amount.toString());
+    final TextEditingController paymentDateController = TextEditingController();
+    final TextEditingController chequeNoController = TextEditingController(text: payment.chequeNo?.toString() ?? '');
+
+    void updatePayment() {
       final newPayment = Payment(
-        id: UniqueKey().toString(), // Generate a unique ID
-        invoiceNo: invoiceId, // Replace with actual invoice ID
+        id: paymentId, // Use the same id
+        invoiceNo: invoiceId, // use the same invoice id
         amount: double.tryParse(amountController.text) ?? 0.0,
         paymentDate: paymentDateController.text,
         paymentMode: selectedPaymentMode,
@@ -33,11 +35,11 @@ class AddPaymentScreen extends ConsumerWidget {
       );
 
       // Add the payment to the state using Riverpod
-      ref.read(paymentProvider.notifier).addPayment(newPayment);
+      ref.read(paymentProvider.notifier).updatePayment(paymentId,newPayment);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('payment added successfully!'),
+          content: const Text('payment updated successfully!'),
           duration: const Duration(seconds: 5),
           action: SnackBarAction(
             label: 'Dismiss',
@@ -52,8 +54,6 @@ class AddPaymentScreen extends ConsumerWidget {
       // Navigate back to the previous screen
       Navigator.pop(context);
     }
-
-    
 
     return SafeArea(
       child: Padding(
@@ -110,8 +110,8 @@ class AddPaymentScreen extends ConsumerWidget {
                 );
               }).toList(),
               onChanged: (value) {
-                if (value != null) {
-                  ref.read(paymentModeProvider.notifier).state = value; // Update the payment mode
+                if(value != null){
+                  ref.watch(paymentModeProvider.notifier).state = value;
                 }
               },
             ),
@@ -128,7 +128,7 @@ class AddPaymentScreen extends ConsumerWidget {
               ),
             const SizedBox(height: 24.0),
             ElevatedButton(
-              onPressed: addPayment,
+              onPressed: updatePayment,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 shape: RoundedRectangleBorder(
@@ -136,7 +136,7 @@ class AddPaymentScreen extends ConsumerWidget {
                 ),
               ),
               child: const Text(
-                "Add Payment",
+                "Update Payment",
                 style: TextStyle(fontSize: 16.0),
               ),
             ),

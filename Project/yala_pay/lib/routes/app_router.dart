@@ -12,6 +12,7 @@ import 'package:yala_pay/screens/edit_cheque_screen.dart';
 import 'package:yala_pay/screens/invoices_report_screen.dart';
 import 'package:yala_pay/screens/update_customer_screen.dart';
 import 'package:yala_pay/screens/update_invoice_screen.dart';
+import 'package:yala_pay/screens/update_payment_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/payments_screen.dart';
@@ -103,27 +104,38 @@ class AppRouter {
                 GoRoute(
                   path: '/invoices/updateInvoice/:invoiceId',
                   name: 'updateInvoice',
-                  builder: (context, state)  {
+                  builder: (context, state) {
                     final invoiceId = state.pathParameters['invoiceId']!;
                     return UpdateInvoiceScreen(invoiceId: invoiceId);
                   },
                 ),
                 GoRoute(
-                  name: 'payments',
-                  path: '/payments/:invoiceId',
-                  builder: (context, state) {
-                    final invoiceId = state.pathParameters['invoiceId']!;
-                    return PaymentsScreen(invoiceId: invoiceId);
-                  },
-                ),
-                GoRoute(
-                  name: 'addPayment',
-                  path: '/payments/addPayment/:invoiceId',
-                  builder: (context, state) {
-                    final invoiceId = state.pathParameters['invoiceId']!;
-                    return AddPaymentScreen(invoiceId: invoiceId);
-                  },
-                ),
+                    name: 'payments',
+                    path: '/payments/:invoiceId',
+                    builder: (context, state) {
+                      final invoiceId = state.pathParameters['invoiceId']!;
+                      return PaymentsScreen(invoiceId: invoiceId);
+                    },
+                    routes: [
+                      GoRoute(
+                        name: 'addPayment',
+                        path: '/addPayment',
+                        builder: (context, state) {
+                          final invoiceId = state.pathParameters['invoiceId']!;
+                          return AddPaymentScreen(invoiceId: invoiceId);
+                        },
+                      ),
+                      GoRoute(
+                        name: 'updatePayment',
+                        path: '/updatePayment/:paymentId',
+                        builder: (context, state) {
+                          final invoiceId = state.pathParameters['invoiceId']!;
+                          final paymentId = state.pathParameters['paymentId']!;
+                          return UpdatePaymentScreen(
+                              invoiceId: invoiceId, paymentId: paymentId);
+                        },
+                      ),
+                    ]),
               ]),
           GoRoute(
             path: '/customer',
@@ -136,13 +148,12 @@ class AppRouter {
                 builder: (context, state) => AddCustomerScreen(),
               ),
               GoRoute(
-                path: '/customer/updateCustomer/:customerId',
-                name: 'updateCustomer',
-                builder: (context, state) {
-                  final customerId = state.pathParameters['customerId']!;
-                  return UpdateCustomerScreen(customerId: customerId);
-                  }
-              ),
+                  path: '/customer/updateCustomer/:customerId',
+                  name: 'updateCustomer',
+                  builder: (context, state) {
+                    final customerId = state.pathParameters['customerId']!;
+                    return UpdateCustomerScreen(customerId: customerId);
+                  }),
             ],
           ),
         ],

@@ -22,6 +22,10 @@ class PaymentNotifier extends StateNotifier<List<Payment>> {
     }
   }
 
+  Payment getPaymentById(String id) {
+    return state.firstWhere((payment) => payment.id == id, orElse: () => throw Exception('Payment not found'));
+  }
+
   // Add a new payment
   void addPayment(Payment payment) {
     state = [...state, payment];

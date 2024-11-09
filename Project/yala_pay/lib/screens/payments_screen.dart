@@ -5,7 +5,6 @@ import 'package:yala_pay/providers/payments_provider.dart';
 import 'package:yala_pay/routes/app_router.dart';
 import '../models/payment.dart';
 
-
 class PaymentsScreen extends ConsumerWidget {
   final String invoiceId;
 
@@ -13,7 +12,10 @@ class PaymentsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final payments = ref.watch(paymentProvider).where((payment) => payment.invoiceNo == invoiceId).toList();
+    final payments = ref
+        .watch(paymentProvider)
+        .where((payment) => payment.invoiceNo == invoiceId)
+        .toList();
 
     return Material(
       child: SafeArea(
@@ -24,20 +26,26 @@ class PaymentsScreen extends ConsumerWidget {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {context.goNamed('addPayment', pathParameters: {'invoiceId': invoiceId});},
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    onPressed: () {
+                      context.goNamed('addPayment',
+                          pathParameters: {'invoiceId': invoiceId});
+                    },
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
                     child: const Text("Add Payment"),
                   ),
                   Text(
                     "Payments for Invoice #$invoiceId",
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               const SizedBox(height: 20.0),
               Expanded(
                 child: payments.isEmpty
-                    ? const Center(child: Text("No payments available for this invoice."))
+                    ? const Center(
+                        child: Text("No payments available for this invoice."))
                     : ListView.builder(
                         itemCount: payments.length,
                         itemBuilder: (context, index) {
@@ -45,10 +53,27 @@ class PaymentsScreen extends ConsumerWidget {
                           return PaymentCard(
                             payment: payment,
                             onDelete: () {
+
+                               ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('payment deleted successfully!'),
+                                  duration: const Duration(seconds: 2),
+                                  action: SnackBarAction(
+                                    label: 'Dismiss',
+                                    onPressed: () {ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                    },
+                                  ),
+                                ),
+                              );
+
                               ref.read(paymentProvider.notifier).deletePayment(payment.id);
+                             
                             },
                             onUpdate: () {
-                              // Implement update logic here
+                              context.goNamed('updatePayment', pathParameters: {
+                                'invoiceId': invoiceId,
+                                'paymentId': payment.id
+                              });
                             },
                           );
                         },
@@ -86,7 +111,8 @@ class PaymentCard extends StatelessWidget {
             children: [
               Text(
                 "Payment ID: ${payment.id}",
-                style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                    fontSize: 16.0, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8.0),
               Text("Amount: ${payment.amount}"),
@@ -100,12 +126,14 @@ class PaymentCard extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: onUpdate,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent),
                     child: const Text("Update Payment"),
                   ),
                   ElevatedButton(
                     onPressed: onDelete,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent),
                     child: const Text("Delete Payment"),
                   ),
                 ],
