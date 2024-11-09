@@ -4,7 +4,6 @@ import 'package:yala_pay/providers/payments_provider.dart';
 import '../models/payment.dart';
 
 class AddPaymentScreen extends ConsumerWidget {
-
   final TextEditingController amountController = TextEditingController();
   final TextEditingController paymentDateController = TextEditingController();
   final TextEditingController chequeNoController = TextEditingController();
@@ -24,25 +23,27 @@ class AddPaymentScreen extends ConsumerWidget {
         amount: double.tryParse(amountController.text) ?? 0.0,
         paymentDate: paymentDateController.text,
         paymentMode: selectedPaymentMode,
-        chequeNo: selectedPaymentMode == "cheque" ? int.tryParse(chequeNoController.text) : null,
+        chequeNo: selectedPaymentMode == "cheque"
+            ? int.tryParse(chequeNoController.text)
+            : null,
       );
 
       // Add the payment to the state using Riverpod
       ref.read(paymentProvider.notifier).addPayment(newPayment);
 
       ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: const Text('payment added successfully!'),
-      duration: const Duration(seconds: 5), 
-      action: SnackBarAction(
-        label: 'Dismiss',
-        onPressed: () {
-          // Code to execute when the action is pressed.
-          ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        },
-      ),
-    ),
-  );
+        SnackBar(
+          content: const Text('payment added successfully!'),
+          duration: const Duration(seconds: 5),
+          action: SnackBarAction(
+            label: 'Dismiss',
+            onPressed: () {
+              // Code to execute when the action is pressed.
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            },
+          ),
+        ),
+      );
 
       // Navigate back to the previous screen
       Navigator.pop(context);
@@ -58,7 +59,6 @@ class AddPaymentScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12.0),
-            
             TextFormField(
               controller: amountController,
               decoration: const InputDecoration(
@@ -69,7 +69,6 @@ class AddPaymentScreen extends ConsumerWidget {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16.0),
-
             TextFormField(
               controller: paymentDateController,
               decoration: const InputDecoration(
@@ -85,12 +84,12 @@ class AddPaymentScreen extends ConsumerWidget {
                   lastDate: DateTime(2100),
                 );
                 if (selectedDate != null) {
-                  paymentDateController.text = selectedDate.toString().split(' ')[0];
+                  paymentDateController.text =
+                      selectedDate.toString().split(' ')[0];
                 }
               },
             ),
             const SizedBox(height: 16.0),
-
             DropdownButtonFormField<String>(
               value: selectedPaymentMode,
               decoration: const InputDecoration(
@@ -109,7 +108,6 @@ class AddPaymentScreen extends ConsumerWidget {
               },
             ),
             const SizedBox(height: 16.0),
-
             if (selectedPaymentMode == "cheque") // Optional cheque number field
               TextFormField(
                 controller: chequeNoController,
@@ -120,9 +118,7 @@ class AddPaymentScreen extends ConsumerWidget {
                 ),
                 keyboardType: TextInputType.number,
               ),
-            
             const SizedBox(height: 24.0),
-
             ElevatedButton(
               onPressed: addPayment,
               style: ElevatedButton.styleFrom(

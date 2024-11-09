@@ -64,6 +64,10 @@ class InvoiceNotifier extends StateNotifier<List<Invoice>> {
       return isInDateRange && matchesStatus;
     }).toList();
   }
+
+  Invoice getInvoiceById(String id) {
+    return state.firstWhere((invoice) => invoice.id == id, orElse: () => throw Exception('invoice not found'));
+  }
 }
 
 // Provide an instance of InvoiceNotifier

@@ -11,6 +11,7 @@ import 'package:yala_pay/screens/edit_cheque_deposit_screen.dart';
 import 'package:yala_pay/screens/edit_cheque_screen.dart';
 import 'package:yala_pay/screens/invoices_report_screen.dart';
 import 'package:yala_pay/screens/update_customer_screen.dart';
+import 'package:yala_pay/screens/update_invoice_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/dashboard_screen.dart';
 import '../screens/payments_screen.dart';
@@ -98,6 +99,14 @@ class AppRouter {
                   path: 'addInvoice',
                   name: 'addInvoice',
                   builder: (context, state) => AddInvoiceScreen(),
+                ),
+                GoRoute(
+                  path: '/invoices/updateInvoice/:invoiceId',
+                  name: 'updateInvoice',
+                  builder: (context, state)  {
+                    final invoiceId = state.pathParameters['invoiceId']!;
+                    return UpdateInvoiceScreen(invoiceId: invoiceId);
+                  },
                 ),
                 GoRoute(
                   name: 'payments',

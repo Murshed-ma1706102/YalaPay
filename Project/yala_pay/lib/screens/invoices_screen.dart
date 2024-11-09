@@ -99,7 +99,7 @@ class _InvoiceScreenState extends ConsumerState<InvoicesScreen> {
                           ref.read(invoiceProvider.notifier).deleteInvoice(invoice.id);
                         },
                         onUpdate: () {
-                          // Implement update logic here
+                          context.goNamed('updateInvoice', pathParameters: {'invoiceId': invoice.id});
                         },
                       );
                     },
