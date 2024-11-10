@@ -17,14 +17,23 @@ class PaymentsScreen extends ConsumerWidget {
         .where((payment) => payment.invoiceNo == invoiceId)
         .toList();
 
-    return Material(
-      child: SafeArea(
+    return Scaffold(
+     appBar: AppBar(
+        title: const Text(
+          "Payments",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 2,
+      ),
+      body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   ElevatedButton(
                     onPressed: () {
@@ -33,12 +42,15 @@ class PaymentsScreen extends ConsumerWidget {
                     },
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    child: const Text("Add Payment"),
+                    child: const Text(
+                      "Add Payment",
+                      style: TextStyle(color: Colors.white),),
                   ),
-                  Text(
-                    "Payments for Invoice #$invoiceId",
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
+                  
+                    Text(
+                      "Payments for Invoice #$invoiceId",
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -57,7 +69,7 @@ class PaymentsScreen extends ConsumerWidget {
 
                                ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text('payment deleted successfully!'),
+                                  content: const Text('Payment deleted successfully!'),
                                   duration: const Duration(seconds: 2),
                                   action: SnackBarAction(
                                     label: 'Dismiss',
@@ -129,13 +141,17 @@ class PaymentCard extends StatelessWidget {
                     onPressed: onUpdate,
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blueAccent),
-                    child: const Text("Update Payment"),
+                    child: const Text(
+                      "Update Payment",
+                      style: TextStyle(color: Colors.white),),
                   ),
                   ElevatedButton(
                     onPressed: onDelete,
                     style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent),
-                    child: const Text("Delete Payment"),
+                    child: const Text(
+                      "Delete Payment",
+                      style: TextStyle(color: Colors.white),),
                   ),
                 ],
               ),

@@ -43,7 +43,13 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Customers"),
+        title: const Text(
+          "Customers",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 2,
       ),
       body: Column(
         children: [
@@ -98,6 +104,17 @@ class _CustomersScreenState extends ConsumerState<CustomersScreen> {
                         email: customer.contactDetails.email,
                         mobile: customer.contactDetails.mobile,
                         onDelete: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Customer deleted successfully!'),
+                                  duration: const Duration(seconds: 3),
+                                  action: SnackBarAction(
+                                    label: 'Dismiss',
+                                    onPressed: () {ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                    },
+                                  ),
+                                ),
+                              );
                           ref.read(customerProvider.notifier).deleteCustomer(customer.id);
                         },
                         onUpdate: () {

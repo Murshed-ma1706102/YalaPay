@@ -16,7 +16,7 @@ class AddInvoiceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     void addInvoice() {
       final newInvoice = Invoice(
-        id: UniqueKey().toString(), // Generate a unique ID
+        id: ref.watch(invoiceProvider.notifier).getNextInvoiceId().toString(), // Generate a unique ID
         customerId: customerIdController.text,
         customerName: customerNameController.text,
         amount: double.tryParse(amountController.text) ?? 0.0,
