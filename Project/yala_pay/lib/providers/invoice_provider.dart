@@ -68,6 +68,17 @@ class InvoiceNotifier extends StateNotifier<List<Invoice>> {
   Invoice getInvoiceById(String id) {
     return state.firstWhere((invoice) => invoice.id == id, orElse: () => throw Exception('invoice not found'));
   }
+
+  int getNextInvoiceId() {
+    if (state.isEmpty) {
+      return 1; // If there are no invoices, start with 1
+    } else {
+      // Extract the last invoice's ID and increment it
+      final lastInvoice = state.last;
+      final lastId = int.tryParse(lastInvoice.id) ?? 0; // Parse the ID to an integer, default to 0 if parsing fails
+      return lastId + 1;
+    }
+  }
 }
 
 // Provide an instance of InvoiceNotifier

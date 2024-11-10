@@ -48,7 +48,13 @@ class _InvoiceScreenState extends ConsumerState<InvoicesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Invoices"),
+        title: const Text(
+          "Invoices",
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 2,
       ),
       body: Column(
         children: [
@@ -96,6 +102,18 @@ class _InvoiceScreenState extends ConsumerState<InvoicesScreen> {
                       return InvoiceCard(
                         invoice: invoice,
                         onDelete: () {
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Invoice deleted successfully!'),
+                                  duration: const Duration(seconds: 3),
+                                  action: SnackBarAction(
+                                    label: 'Dismiss',
+                                    onPressed: () {ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                                    },
+                                  ),
+                                ),
+                              );
                           ref.read(invoiceProvider.notifier).deleteInvoice(invoice.id);
                         },
                         onUpdate: () {
