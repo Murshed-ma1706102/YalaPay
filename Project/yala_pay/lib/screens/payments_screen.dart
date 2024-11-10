@@ -24,6 +24,7 @@ class PaymentsScreen extends ConsumerWidget {
           child: Column(
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
                     onPressed: () {
