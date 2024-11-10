@@ -1,5 +1,8 @@
+// lib/screens/cheque_filter_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../providers/cheque_provider.dart';
 import '../models/cheque.dart';
@@ -30,130 +33,172 @@ class _ChequeFilterScreenState extends ConsumerState<ChequeFilterScreen> {
     final selectedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: isFromDate ? DateTime(2000) : (_fromDate ?? DateTime(2000)),
+      lastDate: isFromDate ? (_toDate ?? DateTime(2100)) : DateTime(2100),
     );
 
     if (selectedDate != null) {
       setState(() {
         if (isFromDate) {
           _fromDate = selectedDate;
+          if (_toDate != null && _toDate!.isBefore(_fromDate!)) {
+            _toDate = null;
+          }
         } else {
           _toDate = selectedDate;
+          if (_fromDate != null && _fromDate!.isAfter(_toDate!)) {
+            _fromDate = null;
+          }
         }
       });
     }
   }
 
-  void _filterCheques() {
+  void _resetFilters() {
+    setState(() {
+      _fromDate = null;
+      _toDate = null;
+      _selectedStatus = 'All';
+      _applyFilters();
+    });
+  }
+
+  void _applyFilters() {
     final allCheques = ref.read(chequeProvider);
 
     setState(() {
       _filteredCheques = allCheques.where((cheque) {
-        final isWithinDateRange =
-            (_fromDate == null || cheque.dueDate.isAfter(_fromDate!)) &&
-                (_toDate == null || cheque.dueDate.isBefore(_toDate!));
-
+        final isWithinDateRange = (_fromDate == null ||
+                cheque.dueDate.isAtSameMomentAs(_fromDate!) ||
+                cheque.dueDate.isAfter(_fromDate!)) &&
+            (_toDate == null ||
+                cheque.dueDate.isAtSameMomentAs(_toDate!) ||
+                cheque.dueDate.isBefore(_toDate!));
         final matchesStatus =
             _selectedStatus == 'All' || cheque.status == _selectedStatus;
         return isWithinDateRange && matchesStatus;
       }).toList();
 
-      if (_selectedStatus == 'All') {
-        _calculateTotalsByStatus(allCheques);
-      } else {
-        _totalAmount =
-            _filteredCheques.fold(0.0, (sum, cheque) => sum + cheque.amount);
-        _totalCount = _filteredCheques.length;
-      }
+      _totalAmount =
+          _filteredCheques.fold(0.0, (sum, cheque) => sum + cheque.amount);
+      _totalCount = _filteredCheques.length;
     });
   }
 
-  void _calculateTotalsByStatus(List<Cheque> allCheques) {
-    final Map<String, double> amountByStatus = {
-      'Awaiting': 0.0,
-      'Deposited': 0.0,
-      'Cashed': 0.0,
-      'Returned': 0.0,
-    };
-
-    final Map<String, int> countByStatus = {
-      'Awaiting': 0,
-      'Deposited': 0,
-      'Cashed': 0,
-      'Returned': 0,
-    };
-
-    for (var cheque in allCheques) {
-      if (amountByStatus.containsKey(cheque.status)) {
-        amountByStatus[cheque.status] =
-            amountByStatus[cheque.status]! + cheque.amount;
-        countByStatus[cheque.status] = countByStatus[cheque.status]! + 1;
-      }
-    }
-
-    setState(() {
-      _totalAmount = amountByStatus.values.reduce((a, b) => a + b);
-      _totalCount = countByStatus.values.reduce((a, b) => a + b);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _applyFilters();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Filter Cheques')),
+      appBar: AppBar(
+        title: const Text('Filter Cheques'),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               ListTile(
                 title: Text(
-                    'From Date: ${_fromDate != null ? DateFormat('dd/MM/yyyy').format(_fromDate!) : 'Not selected'}'),
+                  'From Date: ${_fromDate != null ? DateFormat('dd/MM/yyyy').format(_fromDate!) : 'Not selected'}',
+                  style: TextStyle(color: Colors.blueGrey[800]),
+                ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today,
+                      color: Colors.blueAccent),
                   onPressed: () => _selectDate(context, true),
                 ),
               ),
+              const SizedBox(height: 12),
               ListTile(
                 title: Text(
-                    'To Date: ${_toDate != null ? DateFormat('dd/MM/yyyy').format(_toDate!) : 'Not selected'}'),
+                  'To Date: ${_toDate != null ? DateFormat('dd/MM/yyyy').format(_toDate!) : 'Not selected'}',
+                  style: TextStyle(color: Colors.blueGrey[800]),
+                ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today,
+                      color: Colors.blueAccent),
                   onPressed: () => _selectDate(context, false),
                 ),
               ),
+              const SizedBox(height: 12),
               DropdownButtonFormField<String>(
                 value: _selectedStatus,
                 items: _statuses.map((status) {
-                  return DropdownMenuItem(value: status, child: Text(status));
+                  return DropdownMenuItem(
+                    value: status,
+                    child: Text(
+                      status,
+                      style: const TextStyle(color: Colors.black87),
+                    ),
+                  );
                 }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedStatus = value!;
                   });
                 },
-                decoration: const InputDecoration(labelText: 'Cheque Status'),
+                decoration: InputDecoration(
+                  labelText: 'Cheque Status',
+                  labelStyle: TextStyle(color: Colors.blueGrey[700]),
+                  filled: true,
+                  fillColor: Colors.blueGrey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _filterCheques,
-                child: const Text('Filter Cheques'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: _resetFilters,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Clear Filters',
+                        style: TextStyle(color: Colors.black87)),
+                  ),
+                  ElevatedButton(
+                    onPressed: _applyFilters,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Filter Cheques'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => GoRouter.of(context).go('/reports'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    ),
+                    child: const Text('Back'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              if (_filteredCheques.isNotEmpty || _selectedStatus == 'All') ...[
-                Text('Total Cheques: $_totalCount'),
-                Text('Total Amount: \$${_totalAmount.toStringAsFixed(2)}'),
+              const SizedBox(height: 24),
+              if (_filteredCheques.isNotEmpty) ...[
+                Text(
+                  'Total Cheques: $_totalCount',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  'Total Amount: \$${_totalAmount.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 const Divider(),
-                if (_selectedStatus == 'All')
-                  ..._statuses
-                      .where((status) => status != 'All')
-                      .map((status) => ListTile(
-                            title: Text('Status: $status'),
-                            subtitle: Text(
-                                'Amount: \$${_filteredCheques.where((c) => c.status == status).fold(0.0, (sum, cheque) => sum + cheque.amount).toStringAsFixed(2)} | Count: ${_filteredCheques.where((c) => c.status == status).length}'),
-                          )),
                 ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -163,11 +208,21 @@ class _ChequeFilterScreenState extends ConsumerState<ChequeFilterScreen> {
                     return ListTile(
                       title: Text('Cheque No: ${cheque.chequeNo}'),
                       subtitle: Text(
-                          'Amount: \$${cheque.amount.toStringAsFixed(2)} | Status: ${cheque.status}'),
+                        'Amount: \$${cheque.amount.toStringAsFixed(2)} | Status: ${cheque.status}',
+                      ),
                     );
                   },
                 ),
-              ],
+              ] else
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'No cheques found with the selected filters.',
+                      style: TextStyle(color: Colors.redAccent),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),

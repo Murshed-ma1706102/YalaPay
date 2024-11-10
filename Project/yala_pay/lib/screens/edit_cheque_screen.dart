@@ -1,3 +1,5 @@
+// lib/screens/edit_cheque_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -49,24 +51,19 @@ class _EditChequeScreenState extends ConsumerState<EditChequeScreen> {
 
   void _saveCheque() {
     if (_formKey.currentState!.validate()) {
-      // Update the cheque with the new values
       final updatedCheque = Cheque(
         chequeNo: _chequeNo,
         drawer: _drawer,
         bankName: _bankName,
         dueDate: _dueDate,
         amount: _amount,
-        status: widget.cheque.status, // Preserve original status
-        receivedDate:
-            widget.cheque.receivedDate, // Use the original receivedDate
-        chequeImageUri:
-            widget.cheque.chequeImageUri, // Preserve original image URI
+        status: widget.cheque.status,
+        receivedDate: widget.cheque.receivedDate,
+        chequeImageUri: widget.cheque.chequeImageUri,
       );
 
-      // Update the cheque in the provider
       ref.read(chequeProvider.notifier).updateCheque(_chequeNo, updatedCheque);
 
-      // Show a success message and navigate back
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Cheque updated successfully.')),
       );
@@ -77,55 +74,114 @@ class _EditChequeScreenState extends ConsumerState<EditChequeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Cheque')),
+      appBar: AppBar(
+        title: const Text('Edit Cheque'),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 initialValue: _drawer,
-                decoration: const InputDecoration(labelText: 'Drawer'),
+                decoration: InputDecoration(
+                  labelText: 'Drawer',
+                  labelStyle: TextStyle(color: Colors.blueGrey[700]),
+                  filled: true,
+                  fillColor: Colors.blueGrey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter the drawer name' : null,
                 onChanged: (value) => _drawer = value,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 initialValue: _bankName,
-                decoration: const InputDecoration(labelText: 'Bank Name'),
+                decoration: InputDecoration(
+                  labelText: 'Bank Name',
+                  labelStyle: TextStyle(color: Colors.blueGrey[700]),
+                  filled: true,
+                  fillColor: Colors.blueGrey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter the bank name' : null,
                 onChanged: (value) => _bankName = value,
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 initialValue: _chequeNo.toString(),
-                decoration: const InputDecoration(labelText: 'Cheque Number'),
+                decoration: InputDecoration(
+                  labelText: 'Cheque Number',
+                  labelStyle: TextStyle(color: Colors.blueGrey[700]),
+                  filled: true,
+                  fillColor: Colors.blueGrey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) =>
                     value!.isEmpty ? 'Enter cheque number' : null,
                 onChanged: (value) => _chequeNo = int.parse(value),
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 initialValue: _amount.toStringAsFixed(2),
-                decoration: const InputDecoration(labelText: 'Amount'),
+                decoration: InputDecoration(
+                  labelText: 'Amount',
+                  labelStyle: TextStyle(color: Colors.blueGrey[700]),
+                  filled: true,
+                  fillColor: Colors.blueGrey[50],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
                 keyboardType: TextInputType.number,
                 validator: (value) =>
                     value!.isEmpty ? 'Please enter the amount' : null,
                 onChanged: (value) => _amount = double.parse(value),
               ),
+              const SizedBox(height: 20),
               ListTile(
                 title: Text(
-                    'Due Date: ${DateFormat('dd/MM/yyyy').format(_dueDate)}'),
+                  'Due Date: ${DateFormat('dd/MM/yyyy').format(_dueDate)}',
+                  style: TextStyle(color: Colors.blueGrey[800]),
+                ),
                 trailing: IconButton(
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today,
+                      color: Colors.blueAccent),
                   onPressed: () => _selectDueDate(context),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _saveCheque,
-                child: const Text('Save Changes'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(vertical: 14.0),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Save Changes',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ],
           ),

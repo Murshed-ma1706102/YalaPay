@@ -23,6 +23,7 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
   String? _selectedBankAccount;
   List<String> _bankAccounts = [];
   final ScrollController _scrollController = ScrollController();
+  bool _isProcessing = false; // Flag to prevent multiple deposits
 
   @override
   void initState() {
@@ -76,13 +77,19 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
   }
 
   Future<void> _confirmDeposit() async {
-    if (_selectedCheques.isEmpty || _selectedBankAccount == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please select cheques and a bank account.')),
-      );
+    if (_isProcessing ||
+        _selectedCheques.isEmpty ||
+        _selectedBankAccount == null) {
+      if (_selectedCheques.isEmpty || _selectedBankAccount == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Please select cheques and a bank account.')),
+        );
+      }
       return;
     }
+
+    setState(() => _isProcessing = true); // Start processing
 
     final depositDate = DateTime.now();
     final deposit = ChequeDeposit(
@@ -93,8 +100,10 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
       chequeNos: _selectedCheques.map((cheque) => cheque.chequeNo).toList(),
     );
 
+    // Add deposit to provider
     ref.read(chequeDepositProvider.notifier).addDeposit(deposit);
 
+    // Update each cheque status and date
     final chequeNotifier = ref.read(chequeProvider.notifier);
     for (var cheque in _selectedCheques) {
       cheque.status = 'Deposited';
@@ -102,14 +111,14 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
       chequeNotifier.updateCheque(cheque.chequeNo, cheque);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cheques deposited successfully.')),
-    );
-
     setState(() {
       _selectedCheques.clear();
       _selectedBankAccount = null;
+      _isProcessing = false; // Reset processing flag
     });
+
+    // Navigate to the cheque deposits screen
+    context.go('/cheques/deposits');
   }
 
   Widget _buildBankAccountDropdown() {
@@ -151,6 +160,7 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
   Widget _buildChequeTable(List<Cheque> awaitingCheques) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      controller: _scrollController, // Link the controller here
       child: DataTable(
         headingRowColor: MaterialStateProperty.all(Colors.grey[200]),
         columnSpacing: 24.0,
@@ -275,11 +285,10 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12.0),
                   child: Scrollbar(
-                    controller: _scrollController,
+                    controller:
+                        _scrollController, // Use the same controller here
                     thumbVisibility: true,
-                    child: SingleChildScrollView(
-                      child: _buildChequeTable(awaitingCheques),
-                    ),
+                    child: _buildChequeTable(awaitingCheques),
                   ),
                 ),
               ),
@@ -296,7 +305,7 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
                   borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
-              onPressed: _confirmDeposit,
+              onPressed: _isProcessing ? null : _confirmDeposit,
               child: const Text(
                 'Confirm Deposit',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),

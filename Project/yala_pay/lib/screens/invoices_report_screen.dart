@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../models/invoice.dart';
 import 'package:yala_pay/providers/invoice_provider.dart';
 
@@ -7,7 +8,8 @@ class InvoicesReportScreen extends ConsumerStatefulWidget {
   const InvoicesReportScreen({super.key});
 
   @override
-  ConsumerState<InvoicesReportScreen> createState() => _InvoicesReportScreenState();
+  ConsumerState<InvoicesReportScreen> createState() =>
+      _InvoicesReportScreenState();
 }
 
 class _InvoicesReportScreenState extends ConsumerState<InvoicesReportScreen> {
@@ -32,17 +34,17 @@ class _InvoicesReportScreenState extends ConsumerState<InvoicesReportScreen> {
   }
 
   void generateReport() {
-    filteredInvoices = ref.read(invoiceProvider.notifier).getInvoicesByDateAndStatus(
-      fromDate: fromDate,
-      toDate: toDate,
-      status: selectedStatus,
-    );
+    filteredInvoices =
+        ref.read(invoiceProvider.notifier).getInvoicesByDateAndStatus(
+              fromDate: fromDate,
+              toDate: toDate,
+              status: selectedStatus,
+            );
 
     setState(() {
       filteredInvoices = filteredInvoices; // Refresh UI with new data
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +74,8 @@ class _InvoicesReportScreenState extends ConsumerState<InvoicesReportScreen> {
                   child: Text(
                     fromDate == null || toDate == null
                         ? "Select Date Range"
-                        : "${fromDate!.toLocal()} - ${toDate!.toLocal()}".split(' ')[0],
+                        : "${fromDate!.toLocal()} - ${toDate!.toLocal()}"
+                            .split(' ')[0],
                   ),
                 ),
                 DropdownButton<String>(
@@ -102,7 +105,9 @@ class _InvoicesReportScreenState extends ConsumerState<InvoicesReportScreen> {
                   child: const Text("Generate Report"),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    GoRouter.of(context).go('/chequeFilter');
+                  },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
                   child: const Text("Cheques Report"),
                 ),
@@ -138,10 +143,14 @@ class _InvoicesReportScreenState extends ConsumerState<InvoicesReportScreen> {
             // Totals
             if (selectedStatus == "All" && filteredInvoices.isNotEmpty) ...[
               const SizedBox(height: 16.0),
-              const Text("Totals by Status", style: TextStyle(fontWeight: FontWeight.bold)),
-              Text("Pending: ${filteredInvoices.where((i) => i.status == "Pending").length} invoices"),
-              Text("Partially Paid: ${filteredInvoices.where((i) => i.status == "Partially Paid").length} invoices"),
-              Text("Paid: ${filteredInvoices.where((i) => i.status == "Paid").length} invoices"),
+              const Text("Totals by Status",
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              Text(
+                  "Pending: ${filteredInvoices.where((i) => i.status == "Pending").length} invoices"),
+              Text(
+                  "Partially Paid: ${filteredInvoices.where((i) => i.status == "Partially Paid").length} invoices"),
+              Text(
+                  "Paid: ${filteredInvoices.where((i) => i.status == "Paid").length} invoices"),
               const Divider(),
               Text("Grand Total: $totalAmount for $totalInvoices invoices"),
             ],
@@ -151,4 +160,3 @@ class _InvoicesReportScreenState extends ConsumerState<InvoicesReportScreen> {
     );
   }
 }
-
