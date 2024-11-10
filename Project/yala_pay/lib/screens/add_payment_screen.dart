@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:yala_pay/providers/bank_provider.dart';
+import 'package:yala_pay/providers/cheque_provider.dart';
 import 'package:yala_pay/providers/payments_provider.dart';
+import 'package:yala_pay/providers/mode_payment_provider.dart';
 import '../models/payment.dart';
-import '../providers/mode_payment_provider.dart';
+import '../models/cheque.dart';
 
 class AddPaymentScreen extends ConsumerWidget {
   final TextEditingController amountController = TextEditingController();
   final TextEditingController paymentDateController = TextEditingController();
   final TextEditingController chequeNoController = TextEditingController();
+  final TextEditingController chequeDrawerController = TextEditingController();
+  final TextEditingController chequeDrawerBankController = TextEditingController();
+  final TextEditingController chequeStatusController = TextEditingController();
+  final TextEditingController chequeImageController = TextEditingController();
+  final TextEditingController dueDateController = TextEditingController();  // New Controller for Due Date
+
   final List<String> paymentModes = ["cheque", "bank transfer", "credit card"];
   String selectedPaymentMode = "cheque";
+  String? selectedBank;  // variable that will hold the selected bank
 
   final String invoiceId;
 
@@ -17,10 +27,12 @@ class AddPaymentScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     final selectedPaymentMode = ref.watch(paymentModeProvider);
-    
+    final bankListAsync = ref.watch(bankListProvider);
+
+    // Add Payment Function
     void addPayment() {
+      // Create Payment object
       final newPayment = Payment(
         id: UniqueKey().toString(), // Generate a unique ID
         invoiceNo: invoiceId, // Replace with actual invoice ID
@@ -35,14 +47,30 @@ class AddPaymentScreen extends ConsumerWidget {
       // Add the payment to the state using Riverpod
       ref.read(paymentProvider.notifier).addPayment(newPayment);
 
+      // If the payment is via cheque, create and add a Cheque object
+      if (selectedPaymentMode == "cheque") {
+        final cheque = Cheque(
+          chequeNo: int.tryParse(chequeNoController.text) ?? 0,
+          amount: newPayment.amount,
+          drawer: chequeDrawerController.text,
+          bankName: chequeDrawerBankController.text,
+          status: "Awaiting", // Default status for cheque payments
+          receivedDate: DateTime.now(), // Default to today’s date for cheque
+          dueDate: DateTime.tryParse(dueDateController.text) ?? DateTime.now().add(Duration(days: 30)), // Use selected or default due date
+          chequeImageUri: chequeImageController.text, 
+        );
+
+        // Add the cheque to the cheques list
+        ref.read(chequeProvider.notifier).addCheque(cheque);
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('payment added successfully!'),
+          content: const Text('Payment added successfully!'),
           duration: const Duration(seconds: 5),
           action: SnackBarAction(
             label: 'Dismiss',
             onPressed: () {
-              // Code to execute when the action is pressed.
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
             },
           ),
@@ -52,8 +80,6 @@ class AddPaymentScreen extends ConsumerWidget {
       // Navigate back to the previous screen
       Navigator.pop(context);
     }
-
-    
 
     return SafeArea(
       child: Padding(
@@ -111,12 +137,12 @@ class AddPaymentScreen extends ConsumerWidget {
               }).toList(),
               onChanged: (value) {
                 if (value != null) {
-                  ref.read(paymentModeProvider.notifier).state = value; // Update the payment mode
+                  ref.read(paymentModeProvider.notifier).state = value;
                 }
               },
             ),
             const SizedBox(height: 16.0),
-            if (selectedPaymentMode == "cheque") // Optional cheque number field
+            if (selectedPaymentMode == "cheque") ...[
               TextFormField(
                 controller: chequeNoController,
                 decoration: const InputDecoration(
@@ -126,6 +152,73 @@ class AddPaymentScreen extends ConsumerWidget {
                 ),
                 keyboardType: TextInputType.number,
               ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: chequeDrawerController,
+                decoration: const InputDecoration(
+                  labelText: "Drawer",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.account_box),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+               bankListAsync.when(
+                data: (bankList) {
+                  return DropdownButtonFormField<String>(
+                    value: selectedBank,
+                    decoration: const InputDecoration(
+                      labelText: "Drawer Bank",
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.business),
+                    ),
+                    items: bankList.map((bank) {
+                      return DropdownMenuItem(
+                        value: bank,
+                        child: Text(bank),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        selectedBank = value; // Set the selected bank
+                      }
+                    },
+                  );
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (error, stack) => Text('Error loading banks: $error'),
+              ),
+              const SizedBox(height: 16.0),
+              TextFormField(
+                controller: chequeImageController,
+                decoration: const InputDecoration(
+                  labelText: "Cheque Image URL",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.image),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              // New Date Picker for Due Date
+              TextFormField(
+                controller: dueDateController,
+                decoration: const InputDecoration(
+                  labelText: "Due Date",
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.date_range),
+                ),
+                onTap: () async {
+                  final selectedDate = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now().add(Duration(days: 30)),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                  );
+                  if (selectedDate != null) {
+                    dueDateController.text =
+                        selectedDate.toString().split(' ')[0];
+                  }
+                },
+              ),
+            ],
             const SizedBox(height: 24.0),
             ElevatedButton(
               onPressed: addPayment,

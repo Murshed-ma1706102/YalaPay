@@ -1,28 +1,14 @@
-import 'package:flutter/material.dart';
-import '../repositories/bank_repository.dart';
-import '../models/bank.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class BankProvider with ChangeNotifier {
-  final BankRepository _bankRepository = BankRepository();
-
-  List<Bank> get banks => _bankRepository.getAll();
-
-  Bank? getBankByName(String name) {
-    return _bankRepository.getById(name);
+final bankListProvider = FutureProvider<List<String>>((ref) async {
+  try {
+    final String response = await rootBundle.loadString('assets/YalaPay-data/banks.json');
+    final List<dynamic> data = json.decode(response);
+    return List<String>.from(data);
+  } catch (e) {
+    print('Error loading bank data: $e');
+    return [];
   }
-
-  void addBank(Bank bank) {
-    _bankRepository.add(bank);
-    notifyListeners();
-  }
-
-  void updateBank(String name, Bank updatedBank) {
-    _bankRepository.update(name, updatedBank);
-    notifyListeners();
-  }
-
-  void deleteBank(String name) {
-    _bankRepository.delete(name);
-    notifyListeners();
-  }
-}
+});
