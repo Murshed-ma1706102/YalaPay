@@ -14,6 +14,7 @@ class ChequeDepositsScreen extends ConsumerWidget {
     final allCheques = ref.watch(chequeProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Cheque Deposits'),
         backgroundColor: Colors.blueAccent,

@@ -36,6 +36,7 @@ class _EditChequeDepositScreenState extends State<EditChequeDepositScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Edit Cheque Deposit'),
         backgroundColor: Colors.blueAccent,

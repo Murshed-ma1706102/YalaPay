@@ -257,6 +257,7 @@ class _ChequesScreenState extends ConsumerState<ChequesScreen> {
         .toList();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Create Cheque Deposit'),
         backgroundColor: Colors.blueAccent,

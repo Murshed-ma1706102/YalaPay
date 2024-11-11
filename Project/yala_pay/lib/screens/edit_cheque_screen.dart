@@ -74,6 +74,7 @@ class _EditChequeScreenState extends ConsumerState<EditChequeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Edit Cheque'),
         backgroundColor: Colors.blueAccent,

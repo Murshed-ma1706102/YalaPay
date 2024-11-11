@@ -94,6 +94,7 @@ class _ChequeFilterScreenState extends ConsumerState<ChequeFilterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Filter Cheques'),
         backgroundColor: Colors.blueAccent,

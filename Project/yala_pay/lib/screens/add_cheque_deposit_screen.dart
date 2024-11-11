@@ -69,6 +69,7 @@ class _AddChequeDepositScreenState
     final allCheques = ref.watch(chequeProvider);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Add New Deposit'),
         backgroundColor: Colors.blueAccent,

@@ -20,6 +20,7 @@ class ChequeDepositDetails extends ConsumerWidget {
     final totalAmount = deposit.calculateTotalAmount(depositCheques);
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Deposit Details'),
         backgroundColor: Colors.blueAccent,
